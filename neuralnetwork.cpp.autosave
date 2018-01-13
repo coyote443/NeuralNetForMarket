@@ -65,32 +65,6 @@ void LinearNetwork::createNeurons(){
         }
         m_Net.push_back(tmpLayer);
     }
-
-
-//    Layer   tmpLayer;
-//    int     nOfLayers = m_LayersSizes.size();
-//    int     INPUT_LAYER = 0,
-//            OUTPUT_LAYER = nOfLayers - 1;
-
-//    for(int Layer = 0; Layer < nOfLayers; Layer++){
-//        if(Layer == INPUT_LAYER)
-//            for(unsigned neuronNum = 0; neuronNum < m_LayersSizes.first(); neuronNum++){
-//                LinInputNeuron *newNeuron = new LinInputNeuron;
-//                tmpLayer.push_back(newNeuron);
-//            }
-//        else if(Layer < OUTPUT_LAYER)
-//            for(unsigned neuronNum = 0; neuronNum < m_LayersSizes[Layer]; neuronNum++){
-//                LinHiddenNeuron *newNeuron = new LinHiddenNeuron;
-//                tmpLayer.push_back(newNeuron);
-//            }
-//        else
-//            for(unsigned neuronNum = 0; neuronNum < m_LayersSizes.back(); neuronNum++){
-//                LinOutputNeuron *newNeuron = new LinOutputNeuron;
-//                tmpLayer.push_back(newNeuron);
-//            }
-//        m_Net.push_back(tmpLayer);
-//        tmpLayer.clear();
-//    }
 }
 
 void LinearNetwork::createConnections(){
@@ -122,7 +96,7 @@ LinearNetwork::LinearNetwork(Topology &spec): NeuralNetwork(spec){
 
 /// DO TESTÓW
 ///
-/// CZY FEED FORWARD DZIAŁA DLA PODANEJ SIECI
+/// CZY FEED FORWARD DZIAŁA DLA PODANEJ SIECI           #OK
 /// KONSTRUKTORY JAKICH OBIEKTÓW SĄ WYWOŁYWANE
 /// DODAJ DESTRUKTOR DLA WSZYSTKICH WARSTW SIECI
 /// DOCZYTAJ O FUNKCJACH WIRTUALNYCH I ICH ZWIAZKU Z WYBRANYMI WSKAŹNIKAMI

@@ -33,9 +33,9 @@ public:
     QString         toQString(QString SEP = " ");
 
     //// zablokuj operatory przypisania, kopiowania i przenoszenia;
-    Connections*    m_Connections;
 
 protected:
+    Connections*    m_Connections;
     double          m_Output    = 0;
     double          m_Gradient  = 0;
     bool            m_IsBiasAdded = false;
@@ -81,21 +81,6 @@ public:
 };
 
 
-class LinHiddenNeuron : public LinearNeuron{
-public:
-    LinHiddenNeuron() : LinearNeuron(){}
-    ~LinHiddenNeuron(){}
-};
-
-class LinOutputNeuron : public LinearNeuron{
-public:
-    LinOutputNeuron() : LinearNeuron(){}
-    ~LinOutputNeuron(){}
-};
-
-
-
-
 ////////////////////////////////////////////////////////
 
 
@@ -105,17 +90,5 @@ class RBFNeuron : public Neuron{
 
 };
 
-class RBFInputNeuron : public RBFNeuron{
-
-};
-
-
-class RBFHiddenNeuron : public RBFNeuron{
-
-};
-
-class RBFOutputNeuron : public RBFNeuron{
-
-};
 
 #endif // NEURON_H

@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
     nowaSiec.feedForward(sygnaly);
     nowaSiec.drawMe();
-    Responses newRespo = nowaSiec.takeOutput();
+    //Responses newRespo = nowaSiec.takeOutput();
 
 //    for(double val : newRespo)
 //        qDebug() << val << endl;

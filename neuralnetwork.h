@@ -11,7 +11,7 @@ public:
                     NeuralNetwork(Topology &NetSpec);
     virtual         ~NeuralNetwork(){}
     void            feedForward(Signals inSigs);
-    Responses &     takeOutput();
+    Responses       takeOutput(const Layer &layer);
     void            drawMe();
 
 protected:
@@ -19,7 +19,6 @@ protected:
     virtual void    createConnections() = 0;
     Network         m_Net;
     Topology        m_LayersSizes;
-    Responses       m_Responses;
 };
 
 
