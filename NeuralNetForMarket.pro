@@ -11,10 +11,18 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = NeuralNetForMarket
 TEMPLATE = app
 
+CONFIG += console c++11
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    neuralnetmodel.cpp \
+    neuron.cpp \
+    neuralnetwork.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    neuralnetmodel.h \
+    neuron.h \
+    header.h \
+    neuralnetwork.h
 
 FORMS    += mainwindow.ui
