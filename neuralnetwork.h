@@ -8,17 +8,28 @@
 class NeuralNetwork
 {
 public:
-                    NeuralNetwork(Topology &NetSpec);
+                    NeuralNetwork(const Topology &topology, const Specification &specify);
     virtual         ~NeuralNetwork(){}
-    void            feedForward(Signals inSigs);
-    Responses       takeOutput(const Layer &layer);
-    void            drawMe();
+    virtual void    feedForward(const Signals &inSigs)        = 0;
+    virtual void    backPropagation(const Signals &learnVect) = 0;
+    Signals         getResults() const;
+    void            drawMe() const;
 
 protected:
-    virtual void    createNeurons() = 0;
+    Responses       takeOutput(const Layer &layer) const;
+    virtual void    createLayers() = 0;
     virtual void    createConnections() = 0;
     Network         m_Net;
     Topology        m_LayersSizes;
+    double          m_Error             = 0;    //  Błąd dla wybranej probki
+    double          m_RecentAvarageErr  = 0;    //  Uśrednienie błędu dla liczby próbek BLUR_FACT
+
+    double  BETA,           //      Wsp. krzywej aktywacji || brak
+            ETA,            //      Wsp. uczenia    (0.0 - Powolne, 0.2 Średnie, 1.0 B. duże)
+            ALPHA,          //      Wsp. momentum   (0.0 - Brak, 0.5 Średnie)
+            BLUR_FACT,      //      Wsp. Określający w jakim zakresie uśredniać sqErr
+            MIN_ERR;        //      Błąd poniżej którego nauka jest przerwana
+    int     BIAS_VAL;
 };
 
 
@@ -26,11 +37,19 @@ protected:
 class LinearNetwork : public NeuralNetwork
 {
 public:
-    LinearNetwork(Topology & spec);
+    LinearNetwork(Topology &topol, Specification & specif);
     ~LinearNetwork(){}
+
+    void feedForward(const Signals &inSigs);
+    void backPropagation(const Signals &targetVals);
+
 private:
-    void createNeurons();
+    void createLayers();
     void createConnections();
+    void calcAvarageError(const Signals &targetVals, Layer &outputLayer);
+    void calcOutputLayGradients(const Signals &targetVals, Layer &outputLayer);
+    void calcHiddLayGradients();
+    void updateWeights();
 };
 
 
@@ -38,10 +57,10 @@ private:
 class RBFNetwork : public NeuralNetwork
 {
 public:
-    RBFNetwork(Topology & spec) : NeuralNetwork(spec) {}
+    RBFNetwork(Topology &topol, Specification & specif) : NeuralNetwork(topol, specif) {}
     ~RBFNetwork(){}
 private:
-    void createNeurons();
+    void createLayers();
     void createConnections();
 };
 

@@ -6,19 +6,19 @@
 #include <QDebug>
 #include <QTextStream>
 #include <QThread>
+#include <cmath>
 
 class Neuron;
 
 typedef QVector<unsigned>   Topology;
-typedef QVector<double>     Character;
+typedef QVector<double>     Specification;
 typedef QVector<Neuron*>    Layer;
 typedef QVector<Layer>      Network;
 typedef QVector<double>     Signals;
 typedef std::pair<int, double>  Response;
 typedef QVector<Response>       Responses;
 
-enum mainVals   {BIAS_VAL = 1, BETA, ETA, ALFA, BLUR, MIN_ERR};
-enum biasGate   {OPEN = 0, CLOSED = 1};
+enum Gate {OPEN = 0, CLOSED = 1};
 
 
 

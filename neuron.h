@@ -3,47 +3,57 @@
 
 #include "header.h"
 
-//// Neuron ma zapisany nr neuronu z którym się łączy i przypisaną doń wagę. Określone jest to krotką Connection;
+//// Neuron ma zapisany nr neuronu z którym się łączy i przypisaną doń wagę. Określone jest to strukturą Connection;
 ///
 
-struct Connect{
-            Connect() : m_NeuronIndex(0), m_Weight(0), m_DeltaWeight(0), m_SignalGate(false) {}
-            Connect(int ConNum, double WeiNum) : m_NeuronIndex(ConNum), m_Weight(WeiNum), m_SignalGate(false), m_DeltaWeight(0){}
+struct Connection{
+            Connection() : m_NeuronIndex(0), m_Weight(0), m_DeltaWeight(0), m_SignalGate(false) {}
+            Connection(int ConNum, double WeiNum) : m_NeuronIndex(ConNum), m_Weight(WeiNum), m_SignalGate(false), m_DeltaWeight(0){}
     int     m_NeuronIndex;
+    bool    m_SignalGate;
     double  m_Weight;
     double  m_DeltaWeight;
-    bool    m_SignalGate;
 };
 
 
-typedef QVector<Connect> Connections;
+typedef QVector<Connection> Connections;
 
+
+//// zablokuj operatory przypisania, kopiowania i przenoszenia;
 
 class Neuron
 {
 public:
                     Neuron();
     virtual         ~Neuron();
-
     virtual void    takeThisSignal(Response fromPrevLayer) = 0;
     virtual void    createConnection(int sourceIndex, double weightVal = 0) = 0;
     virtual void    pushSignal() = 0;
-    double          output(){return m_Output;}
-    int             index(){return m_Index;}
+
+    virtual void    calcOutputGradients(double targetVal) = 0;
+    virtual void    calcHiddenGradients(Layer &nextLayer, int neuron_index) = 0;
+    virtual void    updateWeights(Layer &prevLayer) = 0;
+
+    void            setOutputVal(double val){m_Output = val;}
+    double          getOutputVal()const {return m_Output;}
+    int             getIndex()const {return m_Index;}
     QString         toQString(QString SEP = " ");
 
-    //// zablokuj operatory przypisania, kopiowania i przenoszenia;
+    static void     setETA(double newETA){ETA = newETA;}
+    static void     setALFA(double newALFA){ALPHA = newALFA;}
 
 protected:
-    Connections*    m_Connections;
-    double          m_Output    = 0;
-    double          m_Gradient  = 0;
-    bool            m_IsBiasAdded = false;
     int             m_Index;
+    static double   ETA,
+                    ALPHA;
+    Connections     m_Connections;
+    double          m_Output        = 0;
+    double          m_Gradient      = 0;
 
 private:
     static int      createdNeurons;
-    enum            {BIAS_INDEX = 0, BIAS_WEIGHT = 1};
+    // bool            m_IsBiasAdded   = false;
+    //enum            {BIAS_INDEX = 0, BIAS_WEIGHT = 1};
 };
 
 
@@ -51,33 +61,39 @@ class LinearNeuron : public Neuron{
 public:
             LinearNeuron() : Neuron() {}
             ~LinearNeuron();
-
-
-//// Czy dodanie przedrostka virtual do dwóch poniższych funkcji umożliwi mi ich wywołanie u klas potomnych?
-/// w zasadzie tylko inputNeurony będą inaczej agregowały sygnał
-
-    void            createConnection(int sourceIndex, double weightVal = 0) override; // virtual
-    void            takeThisSignal(Response fromPrevLayer) override; // virtual
-    void            pushSignal();
+    void    createConnection(int sourceIndex, double weightVal = 0) override; // virtual
+    void    takeThisSignal(Response fromPrevLayer) override; // virtual
+    void    pushSignal();
 
 protected:
-    double          m_tmpAgregatedSignal = 0;
+    double          m_AgregatedSignal = 0;
     void            agregateThisSignal(Response fromPrvLayer);
     bool            possibleToSendSignal();
     inline void     prepareNeuronForNextSignals();
-    const double    tranFun(double x){return tanh(x);}
-    const double    transferFunctionDerr(double x){return 1.0 - x * x;}
-    inline static double generateWeightVal();
+    double          tranFun(double x){return std::tanh(x);}
+    static double   transferFunctionDerr(double x){return 1.0 - x * x;}
+    inline double   generateWeightVal();
+
+    void            calcOutputGradients(double targetVal);
+    void            calcHiddenGradients(Layer &nextLayer, int neuron_index);
+    void            updateWeights(Layer &prevLayer);
 
 };
 
 
 class LinInputNeuron : public LinearNeuron{
 public:
-                    LinInputNeuron() : LinearNeuron(){}
-                    ~LinInputNeuron(){}
-    void            createConnection(int sourceIndex);
-    void            pushSignal();
+            LinInputNeuron() : LinearNeuron(){}
+            ~LinInputNeuron(){}
+    void    createConnection(int sourceIndex);
+    void    pushSignal();
+};
+
+class LinBiasNeuron : public LinInputNeuron{
+public:
+    LinBiasNeuron() : LinInputNeuron(){}
+    ~LinBiasNeuron(){}
+    void takeThisSignal(Response);
 };
 
 
