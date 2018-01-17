@@ -18,6 +18,7 @@ typedef QVector<double>     Signals;
 typedef std::pair<int, double>  Response;
 typedef QVector<Response>       Responses;
 
+enum Weight{RANDOM = 666};
 enum Gate {OPEN = 0, CLOSED = 1};
 
 

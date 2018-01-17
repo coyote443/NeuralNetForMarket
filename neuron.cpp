@@ -4,7 +4,6 @@ Neuron::Neuron(){
     qsrand(QTime::currentTime().msec());
     createdNeurons++;
     m_Index = createdNeurons;
-    //m_Connections.push_back(Connection(BIAS_INDEX, BIAS_WEIGHT));
 }
 
 Neuron::~Neuron(){}
@@ -27,7 +26,7 @@ QString Neuron::toQString(QString SEP){
 LinearNeuron::~LinearNeuron(){}
 
 void LinearNeuron::createConnection(int sourceIndex, double weightVal){
-    if(weightVal == 0) weightVal = generateWeightVal();
+    if(weightVal == RANDOM) weightVal = generateWeightVal();
     Connection connection(sourceIndex, weightVal);
     m_Connections.push_back( connection );
 }
@@ -57,13 +56,6 @@ void LinearNeuron::agregateThisSignal(Response fromPrvLayer){
             m_AgregatedSignal            +=  sOutput * givenConnection.m_Weight;
             givenConnection.m_SignalGate =   CLOSED;
         }
-//            if(m_IsBiasAdded == false){
-//                double biasWeight   = m_Connections.front().m_Weight;
-//                bool & biasGate     = m_Connections.front().m_SignalGate;
-//                m_AgregatedSignal+= BIAS_VAL * biasWeight;
-//                biasGate            = CLOSED;
-//                m_IsBiasAdded       = true;
-//            }
 }
 
 bool LinearNeuron::possibleToSendSignal(){
@@ -79,7 +71,6 @@ void LinearNeuron::prepareNeuronForNextSignals(){
     m_AgregatedSignal = 0;
     for(Connection &givenConnection : m_Connections){
         givenConnection.m_SignalGate = OPEN;
-        //m_IsBiasAdded = false;
     }
 }
 

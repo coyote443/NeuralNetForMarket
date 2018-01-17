@@ -27,7 +27,7 @@ public:
                     Neuron();
     virtual         ~Neuron();
     virtual void    takeThisSignal(Response fromPrevLayer) = 0;
-    virtual void    createConnection(int sourceIndex, double weightVal = 0) = 0;
+    virtual void    createConnection(int sourceIndex, double weightVal = RANDOM) = 0;
     virtual void    pushSignal() = 0;
 
     virtual void    calcOutputGradients(double targetVal) = 0;
@@ -52,8 +52,6 @@ protected:
 
 private:
     static int      createdNeurons;
-    // bool            m_IsBiasAdded   = false;
-    //enum            {BIAS_INDEX = 0, BIAS_WEIGHT = 1};
 };
 
 
@@ -61,7 +59,7 @@ class LinearNeuron : public Neuron{
 public:
             LinearNeuron() : Neuron() {}
             ~LinearNeuron();
-    void    createConnection(int sourceIndex, double weightVal = 0) override; // virtual
+    void    createConnection(int sourceIndex, double weightVal = RANDOM) override; // virtual
     void    takeThisSignal(Response fromPrevLayer) override; // virtual
     void    pushSignal();
 

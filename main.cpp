@@ -6,7 +6,7 @@
 #include "neuralnetwork.h"
 
 void teacher(LinearNetwork &toTeach){
-    Signals S2 = {1.0, 0.0};
+    Signals S2 = {1.0, 0.0};       // na końcu każdego sygnału wartość BIAS
     Signals T2 = {1.0};
 
     for(int x = 0; x < 100; x ++){
@@ -42,9 +42,8 @@ int main(int argc, char *argv[])
     Topology        topol = {2, 4, 1};
     Specification   spec = {beta, eta, alfa, blur, minErr, bias};
     LinearNetwork   nowaSiec(topol, spec);
-    qDebug() << "Przed "<< endl;
+
     teacher(nowaSiec);
-    qDebug() << "Po "<< endl;
 
 
     return a.exec();

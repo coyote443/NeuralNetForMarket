@@ -35,45 +35,60 @@ Signals NeuralNetwork::getResults() const{
        return Out;
 }
 
-
 void LinearNetwork::createLayers(){
-    bool isItFirstLayer = true;
-    for(unsigned LayerSize : m_LayersSizes){
-        Layer   tmpLayer;
-        for(unsigned nIndex = 0; nIndex < LayerSize; nIndex++){
-            if(isItFirstLayer == true){
+    if(BIAS_VAL == 1)
+        for(int x = 0; x < m_LayersSizes.size() - 1; x++)      // w ostatniej warstwie nie trzeba neuronu od biasu
+            m_LayersSizes[x]++;
+
+    for(int layerIndex = 0; layerIndex < m_LayersSizes.size(); layerIndex++){
+        Layer tmpLayer;
+        int givenLaySize  = m_LayersSizes[layerIndex];
+        int lastLayIndx  = m_LayersSizes.size() - 1,
+            lastLayN = givenLaySize - 1;
+
+        for(int takenNeuron = 0; takenNeuron < givenLaySize; takenNeuron++){
+            if(layerIndex == 0 && takenNeuron != lastLayN){
                 LinInputNeuron * LinNeu = new LinInputNeuron;
                 tmpLayer.push_back(LinNeu);
+            }
+            else if(takenNeuron == lastLayN && BIAS_VAL == 1 && layerIndex != lastLayIndx){
+                LinBiasNeuron * LinBias = new LinBiasNeuron;
+                tmpLayer.push_front(LinBias);
             }
             else{
                 LinearNeuron * LinNeu = new LinearNeuron;
                 tmpLayer.push_back(LinNeu);
             }
         }
-        isItFirstLayer = false;
         m_Net.push_back(tmpLayer);
     }
 }
 
 void LinearNetwork::createConnections(){
-    bool INPUT_Layer    = true;
-    int sourceIndex     = 0;
     Layer *prevLayer;
+    int sourceIndex    = 0;
+    for(int layerIndex = 0; layerIndex < m_Net.size(); layerIndex++){
+        Layer &layer = m_Net[layerIndex];
+        int lastLayerIndex  = m_Net.size() - 1;
 
-    for(Layer &Lay : m_Net){
-        for(Neuron *Neu : Lay){
-            if(INPUT_Layer == true){
+        for(int takenNeuron = 0; takenNeuron < layer.size(); takenNeuron++){
+            Neuron *neuron = layer[takenNeuron];
+
+            if(takenNeuron == 0 && BIAS_VAL == 1 && layerIndex == 0)    // INPUT BIAS NEURON
+                neuron->createConnection(-1, 0);
+
+            else if(layerIndex == 0){                                   // INPUT NEURON
                 sourceIndex--;
-                Neu->createConnection(sourceIndex, 1);
+                neuron->createConnection(sourceIndex, 1);
             }
-            else{
-                for(Neuron *prevNeu : *prevLayer){
-                    Neu->createConnection(prevNeu->getIndex());
-                }
-            }
+            else if(takenNeuron == 0 && BIAS_VAL == 1 && layerIndex != lastLayerIndex)  // HIDD BIAS NEURON
+                for(Neuron *prevNeu : *prevLayer)
+                    neuron->createConnection(prevNeu->getIndex(), 0);
+            else                                                                        // LINEAR NEURON
+                for(Neuron *prevNeu : *prevLayer)
+                    neuron->createConnection(prevNeu->getIndex());
         }
-        INPUT_Layer = false;
-        prevLayer = &Lay;
+        prevLayer = &layer;
     }
 }
 
