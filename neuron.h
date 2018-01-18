@@ -82,14 +82,14 @@ protected:
 class LinInputNeuron : public LinearNeuron{
 public:
             LinInputNeuron() : LinearNeuron(){}
-            ~LinInputNeuron(){}
+            ~LinInputNeuron(){qDebug()<< "uruchamiam destruktor neuronuLiniowegoInput";}
     void    createConnection(int sourceIndex);
     void    pushSignal();
 };
 
 class LinBiasNeuron : public LinInputNeuron{
 public:
-    LinBiasNeuron() : LinInputNeuron(){}
+    LinBiasNeuron() : LinInputNeuron(){qDebug()<< "uruchamiam destruktor neuronuBIAS";}
     ~LinBiasNeuron(){}
     void takeThisSignal(Response);
 };

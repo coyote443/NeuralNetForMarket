@@ -9,22 +9,12 @@ void teacher(LinearNetwork &toTeach){
     Signals S2 = {1.0, 0.0};       // na końcu każdego sygnału wartość BIAS
     Signals T2 = {1.0};
 
-    for(int x = 0; x < 100; x ++){
+    do{
         toTeach.feedForward(S2);
-        toTeach.backPropagation(T2);
-        toTeach.drawMe();
-    }
+    }while(toTeach.backPropagation(T2, 0.1));
+    toTeach.drawMe();
 }
 
-class wololo
-{
-public:
-    wololo() {}
-    static double ddd;
-    static void set(double val){ddd = val;}
-};
-
-double wololo::ddd = 0.1;
 
 int main(int argc, char *argv[])
 {
@@ -36,14 +26,14 @@ int main(int argc, char *argv[])
             eta      =  0.200,      //      Wsp. uczenia
             alfa     =  0.600,      //      Wsp. momentum
             blur     =  20,         //      Wsp. Określający w jakim zakresie uśredniać sqErr
-            minErr   =  0.005,      //      Błąd poniżej którego nauka jest przerwana
             bias     =  1;
 
     Topology        topol = {2, 4, 1};
-    Specification   spec = {beta, eta, alfa, blur, minErr, bias};
+    Specification   spec = {beta, eta, alfa, blur, bias};
+    {
     LinearNetwork   nowaSiec(topol, spec);
-
-    teacher(nowaSiec);
+    }
+   // teacher(nowaSiec);
 
 
     return a.exec();

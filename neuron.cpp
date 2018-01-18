@@ -6,7 +6,7 @@ Neuron::Neuron(){
     m_Index = createdNeurons;
 }
 
-Neuron::~Neuron(){}
+Neuron::~Neuron(){qDebug()<< "uruchamiam destruktor neuronu";}
 
 int     Neuron::createdNeurons  = 0;
 double  Neuron::ALPHA           = 0;
@@ -23,7 +23,7 @@ QString Neuron::toQString(QString SEP){
 }
 
 
-LinearNeuron::~LinearNeuron(){}
+LinearNeuron::~LinearNeuron(){qDebug()<< "uruchamiam destruktor neuronuLiniowego";}
 
 void LinearNeuron::createConnection(int sourceIndex, double weightVal){
     if(weightVal == RANDOM) weightVal = generateWeightVal();

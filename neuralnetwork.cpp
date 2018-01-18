@@ -5,8 +5,7 @@ NeuralNetwork::NeuralNetwork(const Topology & topology, const Specification & sp
         ETA      =  specify[1],      //      Wsp. uczenia
         ALPHA    =  specify[2],      //      Wsp. momentum
         BLUR_FACT=  specify[3],      //      Wsp. Określający w jakim zakresie uśredniać sqErr
-        MIN_ERR  =  specify[4],      //      Błąd poniżej którego nauka jest przerwana
-        BIAS_VAL =  specify[5];
+        BIAS_VAL =  specify[4];
 
         Neuron::setETA(ETA);
         Neuron::setALFA(ALPHA);
@@ -33,6 +32,18 @@ Signals NeuralNetwork::getResults() const{
        for(Neuron *neuron : m_Net.back())
            Out.push_back(neuron->getOutputVal());
        return Out;
+}
+
+LinearNetwork::LinearNetwork(Topology &topol, Specification & specif): NeuralNetwork(topol, specif){
+    createLayers();
+    createConnections();
+}
+
+LinearNetwork::~LinearNetwork(){
+    qDebug() << "Jestem w destruktorze linearNetwork";
+    for(Layer & layer: m_Net)
+        for(Neuron * neuron : layer)
+            delete neuron;
 }
 
 void LinearNetwork::createLayers(){
@@ -92,11 +103,6 @@ void LinearNetwork::createConnections(){
     }
 }
 
-LinearNetwork::LinearNetwork(Topology &topol, Specification & specif): NeuralNetwork(topol, specif){
-    createLayers();
-    createConnections();
-}
-
 void LinearNetwork::feedForward(const Signals &inSigs){
     /// EACH NEURON INDEX   >= 1
     /// BIAS INDEX          == 0
@@ -129,9 +135,7 @@ void LinearNetwork::updateWeights(){
         Layer &prevLayer    = m_Net[layerIndex - 1];
 
         for(int N = 0; N < m_Net[layerIndex].size(); N++){
-
             acctLayer[N]->updateWeights(prevLayer);
-
         }
     }
 }
@@ -153,7 +157,7 @@ void LinearNetwork::calcOutputLayGradients(const Signals &targetVals, Layer &out
     }
 }
 
-void LinearNetwork::calcAvarageError(const Signals &targetVals, Layer &outputLayer){
+void LinearNetwork::calcAvarageError(const Signals &targetVals, const Layer &outputLayer){
     m_Error = 0.0;
     for(int n = 0; n < outputLayer.size(); n++){
         double delta = targetVals[n] - outputLayer[n]->getOutputVal();
@@ -161,25 +165,40 @@ void LinearNetwork::calcAvarageError(const Signals &targetVals, Layer &outputLay
     }
     m_Error /= outputLayer.size();
     m_Error = std::sqrt(m_Error);
-
-    m_RecentAvarageErr = (m_RecentAvarageErr * BLUR_FACT + m_Error) / (BLUR_FACT + 1.0);
 }
 
-void LinearNetwork::backPropagation(const Signals &targetVals){
-    //bias removed
+bool LinearNetwork::backPropagation(const Signals &targetVals, const double targetError){
     Layer &outputLayer = m_Net.back();
     calcAvarageError(targetVals, outputLayer);
+
+    // Czasem sqErr = 0; pomijam te wyniki z zerem; usredniam Err zgodnie ze wsp. BLUR
+    static int sqErrCounter = BLUR_FACT;
+    if(m_Error != 0){
+        sqErrCounter--;
+        m_RecentAvarageErr += m_Error;
+        if(sqErrCounter == 0){
+            sqErrCounter        = BLUR_FACT;
+            m_RecentAvarageErr  /= BLUR_FACT;
+            m_Progress          = targetError / m_RecentAvarageErr * 100;
+            m_Corectness        = m_RecentAvarageErr;
+            m_RecentAvarageErr  = 0;
+            if(m_Corectness < targetError)
+                return false;
+        }
+    }
     calcOutputLayGradients(targetVals, outputLayer);
     calcHiddLayGradients();
     updateWeights();
+    return true;
 }
 
 
 /// DO TESTÓW
 ///
 /// CZY FEED FORWARD DZIAŁA DLA PODANEJ SIECI           #OK
-/// KONSTRUKTORY JAKICH OBIEKTÓW SĄ WYWOŁYWANE
-/// DODAJ DESTRUKTOR DLA WSZYSTKICH WARSTW SIECI
+/// KONSTRUKTORY JAKICH OBIEKTÓW SĄ WYWOŁYWANE          #OK
+/// DODAJ DESTRUKTOR DLA WSZYSTKICH WARSTW SIECI        #OK// neurony BIASU usuwa automatycznie. Dlaczego?
+/// PRZETESTUJ PROGRAM POD KĄTEM WYCIEKÓW PAMIĘCI
 /// DOCZYTAJ O FUNKCJACH WIRTUALNYCH I ICH ZWIAZKU Z WYBRANYMI WSKAŹNIKAMI
 /// JEŚLI WSZYSTKO DZIAŁA TO DODAJ
 ///     OPCJĘ ZAPISU I ODCZYTU SIECI
