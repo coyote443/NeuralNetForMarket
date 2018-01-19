@@ -7,6 +7,7 @@
 #include <QTextStream>
 #include <QThread>
 #include <cmath>
+#include <QFile>
 
 class Neuron;
 

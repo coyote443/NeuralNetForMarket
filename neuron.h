@@ -37,7 +37,7 @@ public:
     void            setOutputVal(double val){m_Output = val;}
     double          getOutputVal()const {return m_Output;}
     int             getIndex()const {return m_Index;}
-    QString         toQString(QString SEP = " ");
+    QString         toQString(QString SEP = "[::]");
 
     static void     setETA(double newETA){ETA = newETA;}
     static void     setALFA(double newALFA){ALPHA = newALFA;}
@@ -89,8 +89,8 @@ public:
 
 class LinBiasNeuron : public LinInputNeuron{
 public:
-    LinBiasNeuron() : LinInputNeuron(){qDebug()<< "uruchamiam destruktor neuronuBIAS";}
-    ~LinBiasNeuron(){}
+    LinBiasNeuron() : LinInputNeuron(){}
+    ~LinBiasNeuron(){qDebug()<< "uruchamiam destruktor neuronuBIAS";}
     void takeThisSignal(Response);
 };
 

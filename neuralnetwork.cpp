@@ -1,11 +1,12 @@
 #include "neuralnetwork.h"
 
-NeuralNetwork::NeuralNetwork(const Topology & topology, const Specification & specify) : m_LayersSizes(topology){
-        BETA     =  specify[0],      //      Wsp. krzywej aktywacji || brak
-        ETA      =  specify[1],      //      Wsp. uczenia
-        ALPHA    =  specify[2],      //      Wsp. momentum
-        BLUR_FACT=  specify[3],      //      Wsp. Określający w jakim zakresie uśredniać sqErr
-        BIAS_VAL =  specify[4];
+NeuralNetwork::NeuralNetwork(const Topology & topology, const Specification & specify) : m_Topology(topology),
+    m_Specifi(specify){
+        BETA     =  m_Specifi[0],      //      Wsp. krzywej aktywacji || brak
+        ETA      =  m_Specifi[1],      //      Wsp. uczenia
+        ALPHA    =  m_Specifi[2],      //      Wsp. momentum
+        BLUR_FACT=  m_Specifi[3],      //      Wsp. Określający w jakim zakresie uśredniać sqErr
+        BIAS_VAL =  m_Specifi[4];
 
         Neuron::setETA(ETA);
         Neuron::setALFA(ALPHA);
@@ -46,15 +47,94 @@ LinearNetwork::~LinearNetwork(){
             delete neuron;
 }
 
+void LinearNetwork::feedForward(const Signals &inSigs){
+    /// EACH NEURON INDEX   >= 1
+    /// BIAS INDEX          == 0
+    /// EACH SIGNAL INDEX   <= -1
+
+    /*  Sygnał do neuronów inputu musi mieć spis elementów, które są źródłem tego sygnału (np neurony innej sieci,
+        rekurencyjne połączenia z wyjścia, bądź po prostu jakis inny sygnał. Bazowo, Sygnał jest pozbawiony indexów,
+        więc się mu je sztucznie dodaje. */
+
+    Responses prevLayerRespo;
+    int sigIndex = 0;
+    for(double sig : inSigs){
+        --sigIndex;
+        prevLayerRespo.push_back({sigIndex, sig});
+    }
+
+    for(Layer &takenLayer : m_Net){
+        for(Neuron *takenNeuron : takenLayer){
+            for(Response prevNeuronOut : prevLayerRespo){
+                takenNeuron->takeThisSignal(prevNeuronOut);
+            }
+        }
+        prevLayerRespo = takeOutput(takenLayer);
+    }
+}
+
+bool LinearNetwork::backPropagation(const Signals &targetVals, const double targetError){
+    Layer &outputLayer = m_Net.back();
+    calcAvarageError(targetVals, outputLayer);
+
+    // Czasem sqErr = 0; pomijam te wyniki z zerem; usredniam Err zgodnie ze wsp. BLUR
+    static int sqErrCounter = BLUR_FACT;
+    if(m_Error != 0){
+        sqErrCounter--;
+        m_RecentAvarageErr += m_Error;
+        if(sqErrCounter == 0){
+            sqErrCounter        = BLUR_FACT;
+            m_RecentAvarageErr  /= BLUR_FACT;
+            m_Progress          = targetError / m_RecentAvarageErr * 100;
+            m_Corectness        = m_RecentAvarageErr;
+            m_RecentAvarageErr  = 0;
+            if(m_Corectness < targetError)
+                return false;
+        }
+    }
+    calcOutputLayGradients(targetVals, outputLayer);
+    calcHiddLayGradients();
+    updateWeights();
+    return true;
+}
+
+QString LinearNetwork::toQString(QString SEP){
+    QString toOut;
+    QTextStream stream(&toOut);
+
+    for(double specification : m_Specifi){
+        stream << specification << SEP;
+    }
+    stream << endl;
+
+    for(int val : m_Topology){
+        stream << val << SEP;
+    }
+    stream << endl;
+
+    for(Layer layer : m_Net){
+        for(Neuron * neuron : layer){
+            stream << neuron->toQString(SEP);
+        }
+    }
+    stream << endl;
+    return toOut;
+}
+
+
+void LinearNetwork::loadNetwork(QString local){
+    // otwórz okno wczytania
+}
+
 void LinearNetwork::createLayers(){
     if(BIAS_VAL == 1)
-        for(int x = 0; x < m_LayersSizes.size() - 1; x++)      // w ostatniej warstwie nie trzeba neuronu od biasu
-            m_LayersSizes[x]++;
+        for(int x = 0; x < m_Topology.size() - 1; x++)      // w ostatniej warstwie nie trzeba neuronu od biasu
+            m_Topology[x]++;
 
-    for(int layerIndex = 0; layerIndex < m_LayersSizes.size(); layerIndex++){
+    for(int layerIndex = 0; layerIndex < m_Topology.size(); layerIndex++){
         Layer tmpLayer;
-        int givenLaySize  = m_LayersSizes[layerIndex];
-        int lastLayIndx  = m_LayersSizes.size() - 1,
+        int givenLaySize  = m_Topology[layerIndex];
+        int lastLayIndx  = m_Topology.size() - 1,
             lastLayN = givenLaySize - 1;
 
         for(int takenNeuron = 0; takenNeuron < givenLaySize; takenNeuron++){
@@ -103,32 +183,6 @@ void LinearNetwork::createConnections(){
     }
 }
 
-void LinearNetwork::feedForward(const Signals &inSigs){
-    /// EACH NEURON INDEX   >= 1
-    /// BIAS INDEX          == 0
-    /// EACH SIGNAL INDEX   <= -1
-
-    /*  Sygnał do neuronów inputu musi mieć spis elementów, które są źródłem tego sygnału (np neurony innej sieci,
-        rekurencyjne połączenia z wyjścia, bądź po prostu jakis inny sygnał. Bazowo, Sygnał jest pozbawiony indexów,
-        więc się mu je sztucznie dodaje. */
-
-    Responses prevLayerRespo;
-    int sigIndex = 0;
-    for(double sig : inSigs){
-        --sigIndex;
-        prevLayerRespo.push_back({sigIndex, sig});
-    }
-
-    for(Layer &takenLayer : m_Net){
-        for(Neuron *takenNeuron : takenLayer){
-            for(Response prevNeuronOut : prevLayerRespo){
-                takenNeuron->takeThisSignal(prevNeuronOut);
-            }
-        }
-        prevLayerRespo = takeOutput(takenLayer);
-    }
-}
-
 void LinearNetwork::updateWeights(){
     for (int layerIndex = m_Net.size() - 1; layerIndex > 0; layerIndex--){
         Layer &acctLayer    = m_Net[layerIndex];
@@ -167,30 +221,6 @@ void LinearNetwork::calcAvarageError(const Signals &targetVals, const Layer &out
     m_Error = std::sqrt(m_Error);
 }
 
-bool LinearNetwork::backPropagation(const Signals &targetVals, const double targetError){
-    Layer &outputLayer = m_Net.back();
-    calcAvarageError(targetVals, outputLayer);
-
-    // Czasem sqErr = 0; pomijam te wyniki z zerem; usredniam Err zgodnie ze wsp. BLUR
-    static int sqErrCounter = BLUR_FACT;
-    if(m_Error != 0){
-        sqErrCounter--;
-        m_RecentAvarageErr += m_Error;
-        if(sqErrCounter == 0){
-            sqErrCounter        = BLUR_FACT;
-            m_RecentAvarageErr  /= BLUR_FACT;
-            m_Progress          = targetError / m_RecentAvarageErr * 100;
-            m_Corectness        = m_RecentAvarageErr;
-            m_RecentAvarageErr  = 0;
-            if(m_Corectness < targetError)
-                return false;
-        }
-    }
-    calcOutputLayGradients(targetVals, outputLayer);
-    calcHiddLayGradients();
-    updateWeights();
-    return true;
-}
 
 
 /// DO TESTÓW

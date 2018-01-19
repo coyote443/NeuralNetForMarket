@@ -11,8 +11,9 @@ void teacher(LinearNetwork &toTeach){
 
     do{
         toTeach.feedForward(S2);
-    }while(toTeach.backPropagation(T2, 0.1));
-    toTeach.drawMe();
+        toTeach.drawMe();
+    }while(toTeach.backPropagation(T2, 0.01));
+    //toTeach.drawMe();
 }
 
 
@@ -30,19 +31,10 @@ int main(int argc, char *argv[])
 
     Topology        topol = {2, 4, 1};
     Specification   spec = {beta, eta, alfa, blur, bias};
-    {
     LinearNetwork   nowaSiec(topol, spec);
-    }
-   // teacher(nowaSiec);
+
+    teacher(nowaSiec);
 
 
     return a.exec();
 }
-
-
-
-//Signals         sygnaly     = {0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,};
-//Signals         targetVals  = {2, 2};
-
-//nowaSiec.feedForward(sygnaly);
-//nowaSiec.backPropagation(targetVals);

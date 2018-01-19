@@ -15,12 +15,10 @@ CONFIG += console c++11
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    neuralnetmodel.cpp \
     neuron.cpp \
     neuralnetwork.cpp
 
 HEADERS  += mainwindow.h \
-    neuralnetmodel.h \
     neuron.h \
     header.h \
     neuralnetwork.h

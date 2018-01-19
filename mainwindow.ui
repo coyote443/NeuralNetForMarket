@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>872</width>
-    <height>449</height>
+    <width>929</width>
+    <height>629</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,170 +17,11 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="verticalLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>40</y>
-      <width>541</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayoutCharacteristics">
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>BLURR</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>Min.  Błąd</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>BETA</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>ETA</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>ALPHA</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayoutSpinCharacteristics">
-       <item>
-        <widget class="QSpinBox" name="spinBoxBLURR">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Określa po ilu próbkach ma nastąpić obliczenie średniej wartości błędu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>10000</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QDoubleSpinBox" name="doubleSpinBoxMIN_ERR">
-         <property name="maximum">
-          <double>1.000000000000000</double>
-         </property>
-         <property name="singleStep">
-          <double>0.050000000000000</double>
-         </property>
-         <property name="value">
-          <double>0.200000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QDoubleSpinBox" name="doubleSpinBoxBETA">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#008000;&quot;&gt;Wsp.&lt;/span&gt;&lt;span style=&quot; color:#c0c0c0;&quot;/&gt;&lt;span style=&quot; color:#008000;&quot;&gt;krzywej&lt;/span&gt;&lt;span style=&quot; color:#c0c0c0;&quot;/&gt;&lt;span style=&quot; color:#008000;&quot;&gt;aktywacji&lt;/span&gt;&lt;span style=&quot; color:#c0c0c0;&quot;/&gt;&lt;span style=&quot; color:#008000;&quot;&gt;||&lt;/span&gt;&lt;span style=&quot; color:#c0c0c0;&quot;/&gt;&lt;span style=&quot; color:#008000;&quot;&gt;brak&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="specialValueText">
-          <string/>
-         </property>
-         <property name="maximum">
-          <double>10.000000000000000</double>
-         </property>
-         <property name="singleStep">
-          <double>0.100000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QDoubleSpinBox" name="doubleSpinBoxETA">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Współczynnik uczenia, który określa, jak bardzo wagi są korygowane przy każdej aktualizacji. DO IMPLEMENTACJI : W czasie uczenia eta przyjmuje najpierw wartość początkową, zmniejsza się do Niskiego Eta, a następnie wzrasta do Wysokiego Eta i znów spada do Niskiego Eta. Ostatnie dwa kroki są powtarzane do ukończenia uczenia.&lt;/p&gt;&lt;p&gt;Spadek Eta określa szybkość spadku eta wyrażoną przez liczbę cykli między Wysokim Eta a Niskim Eta. Określ wartości dla każdej opcji eta.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="maximum">
-          <double>10.000000000000000</double>
-         </property>
-         <property name="singleStep">
-          <double>0.100000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QDoubleSpinBox" name="doubleSpinBoxALPHA">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Momentum wpływa na aktualizowanie wag podczas uczenia. &lt;span style=&quot; font-weight:600;&quot;&gt;Momentum&lt;/span&gt; sprzyja zmianom wag w stałym kierunku. Określ wartość z zakresu od 0 do 1. Wyższe wartości alfa zwiększają momentum, ograniczając tendencję do zmiany kierunku pod wpływem lokalnych zmienności danych.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="maximum">
-          <double>1.000000000000000</double>
-         </property>
-         <property name="singleStep">
-          <double>0.100000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="checkBoxBIAS">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>BIAS</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QPushButton" name="pushButtonStartNetworkLearning">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>270</y>
-      <width>161</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Rozpocznij Naukę Sieci</string>
-    </property>
-   </widget>
    <widget class="QProgressBar" name="progressBar">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>340</y>
+      <y>500</y>
       <width>851</width>
       <height>31</height>
      </rect>
@@ -199,7 +40,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>310</y>
+      <y>460</y>
       <width>841</width>
       <height>21</height>
      </rect>
@@ -211,239 +52,550 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="label_8">
+   <widget class="QLineEdit" name="lineEdit_2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>400</y>
+      <width>451</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Kolejne rozmiary warstw ukrytych sieci.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>BRAK</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_15">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>370</y>
+      <width>171</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Nierozróżnialne klasy testowe</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBoxSpecifi">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>501</width>
-      <height>21</height>
+      <width>561</width>
+      <height>111</height>
      </rect>
     </property>
-    <property name="text">
+    <property name="title">
      <string>Charakterystyka ANN</string>
     </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
+    <widget class="QWidget" name="verticalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>541</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayoutCharacteristics">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>BLURR</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Min.  Błąd</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>BETA</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>ETA</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>ALPHA</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayoutSpinCharacteristics">
+        <item>
+         <widget class="QSpinBox" name="spinBoxBLURR">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Określa po ilu próbkach ma nastąpić obliczenie średniej wartości błędu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="minimum">
+           <number>50</number>
+          </property>
+          <property name="maximum">
+           <number>10000</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxMIN_ERR">
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.050000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.200000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxBETA">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#008000;&quot;&gt;Wsp.&lt;/span&gt;&lt;span style=&quot; color:#c0c0c0;&quot;/&gt;&lt;span style=&quot; color:#008000;&quot;&gt;krzywej&lt;/span&gt;&lt;span style=&quot; color:#c0c0c0;&quot;/&gt;&lt;span style=&quot; color:#008000;&quot;&gt;aktywacji&lt;/span&gt;&lt;span style=&quot; color:#c0c0c0;&quot;/&gt;&lt;span style=&quot; color:#008000;&quot;&gt;||&lt;/span&gt;&lt;span style=&quot; color:#c0c0c0;&quot;/&gt;&lt;span style=&quot; color:#008000;&quot;&gt;brak&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="specialValueText">
+           <string/>
+          </property>
+          <property name="maximum">
+           <double>10.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxETA">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Współczynnik uczenia, który określa, jak bardzo wagi są korygowane przy każdej aktualizacji. DO IMPLEMENTACJI : W czasie uczenia eta przyjmuje najpierw wartość początkową, zmniejsza się do Niskiego Eta, a następnie wzrasta do Wysokiego Eta i znów spada do Niskiego Eta. Ostatnie dwa kroki są powtarzane do ukończenia uczenia.&lt;/p&gt;&lt;p&gt;Spadek Eta określa szybkość spadku eta wyrażoną przez liczbę cykli między Wysokim Eta a Niskim Eta. Określ wartości dla każdej opcji eta.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="maximum">
+           <double>10.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.100000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxALPHA">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Momentum wpływa na aktualizowanie wag podczas uczenia. &lt;span style=&quot; font-weight:600;&quot;&gt;Momentum&lt;/span&gt; sprzyja zmianom wag w stałym kierunku. Określ wartość z zakresu od 0 do 1. Wyższe wartości alfa zwiększają momentum, ograniczając tendencję do zmiany kierunku pod wpływem lokalnych zmienności danych.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.100000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxBIAS">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>BIAS</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </widget>
-   <widget class="QLabel" name="label_9">
+   <widget class="QGroupBox" name="groupBoxButtons">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>131</y>
-      <width>501</width>
-      <height>16</height>
+      <y>380</y>
+      <width>391</width>
+      <height>71</height>
      </rect>
     </property>
-    <property name="text">
+    <property name="title">
+     <string/>
+    </property>
+    <widget class="QPushButton" name="pushButtonStartNetworkLearning">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>151</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Rozpocznij naukę sieci</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>20</y>
+       <width>191</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Przetestuj materiał testowy</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBoxWayOfNetConstruct">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>10</y>
+      <width>271</width>
+      <height>321</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Sposób Konstrukcji</string>
+    </property>
+    <widget class="QWidget" name="verticalLayoutWidget_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>251</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QRadioButton" name="radioButtonNeuronSigmoid">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Sigmoidalny</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButtonNeuronRBF">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>RBF (Radial Basis Function)</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QLabel" name="label_18">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>150</y>
+       <width>151</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Sposób Konstrukcji Sieci</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>180</y>
+       <width>250</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QRadioButton" name="radioButtonOneNetworkForAllClases">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Sieć uczy się wszystkich klas sygnałów</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButtonNetworkForEachClass">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Osobna sieć dla każdej klasy sygnałów</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QLabel" name="label_17">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>151</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Typ Neuronów Sieci</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonApplyConstruct">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>270</y>
+       <width>251</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Zatwierdź</string>
+     </property>
+    </widget>
+    <zorder>verticalLayoutWidget_4</zorder>
+    <zorder>verticalLayoutWidget_3</zorder>
+    <zorder>label_18</zorder>
+    <zorder>verticalLayoutWidget_3</zorder>
+    <zorder>label_17</zorder>
+    <zorder>pushButtonApplyConstruct</zorder>
+   </widget>
+   <widget class="QGroupBox" name="groupBoxTopology">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>561</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="title">
      <string>Topologia ANN</string>
     </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
+    <widget class="QWidget" name="verticalLayoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>541</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayoutTopology">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Rozmiar w. Input</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>Rozmiar w. Output</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>Rozmiary ukrytych w.</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_spinTopology">
+        <item>
+         <widget class="QSpinBox" name="spinBoxInputLayerSize">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ilość neuronów w warstwie wejściowej. Zdeterminowana jest rozmiarem wektorów uczących.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>10000</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spinBoxOutputLayerSize">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ilość neuronów w warstwie wyjściowej. Zdeterminowana przyjętą polityką nauki.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEditNumOfHiddLays">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Kolejne rozmiary warstw ukrytych sieci.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </widget>
-   <widget class="QWidget" name="verticalLayoutWidget_2">
+   <widget class="QFrame" name="frameLoadGenerate">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>160</y>
-      <width>541</width>
-      <height>61</height>
+      <y>270</y>
+      <width>561</width>
+      <height>71</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayoutTopology">
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <item>
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Rozmiar w. Input</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>Rozmiar w. Output</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>Ilość w. Ukrytych</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>Rozmairy ukrytych w.</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_spinTopology">
-       <item>
-        <widget class="QSpinBox" name="spinBoxInputLayerSize">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ilość neuronów w warstwie wejściowej. Zdeterminowana jest rozmiarem wektorów uczących.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>10000</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="spinBoxOutputLayerSize">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ilość neuronów w warstwie wyjściowej. Zdeterminowana przyjętą polityką nauki.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="spinBox">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ilość warstw ukrytych&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="lineEdit">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Kolejne rozmiary warstw ukrytych sieci.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QPushButton" name="pushButtonLoadDataset">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>251</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Wczytaj dane uczące</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonGenerateNetwork">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>20</y>
+       <width>261</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Wygeneruj sieć / sieci</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QLabel" name="label_17">
+   <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
      <rect>
-      <x>580</x>
-      <y>10</y>
-      <width>151</width>
-      <height>16</height>
+      <x>610</x>
+      <y>340</y>
+      <width>93</width>
+      <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>Typ Neuronów w Sieci</string>
+     <string>PushButton</string>
     </property>
-    <property name="alignment">
-     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_18">
-    <property name="geometry">
-     <rect>
-      <x>580</x>
-      <y>130</y>
-      <width>151</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Sposób Konstrukcji Sieci</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QWidget" name="verticalLayoutWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>580</x>
-      <y>160</y>
-      <width>250</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QRadioButton" name="radioButton_3">
-       <property name="text">
-        <string>Sieć uczy się wszystkich klas sygnałów</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radioButton_4">
-       <property name="text">
-        <string>Osobna sieć dla każdej klasy sygnałów</string>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="verticalLayoutWidget_4">
-    <property name="geometry">
-     <rect>
-      <x>580</x>
-      <y>40</y>
-      <width>251</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_3">
-     <item>
-      <widget class="QRadioButton" name="radioButtonNeuronSigmoid">
-       <property name="text">
-        <string>Sigmoidalny</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radioButtonNeuronRBF">
-       <property name="text">
-        <string>Radial Basis Function</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -451,7 +603,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>872</width>
+     <width>929</width>
      <height>26</height>
     </rect>
    </property>
@@ -459,9 +611,11 @@
     <property name="title">
      <string>Plik</string>
     </property>
+    <addaction name="actionNowa_Sie"/>
     <addaction name="actionWczytaj_Sie"/>
     <addaction name="actionZapisz_Sie"/>
     <addaction name="actionWczytaj_Materia_Ucz_cy"/>
+    <addaction name="actionWczytaj_materia_testuj_cy"/>
    </widget>
    <addaction name="menuPlik"/>
   </widget>
@@ -486,7 +640,17 @@
   </action>
   <action name="actionWczytaj_Materia_Ucz_cy">
    <property name="text">
-    <string>Wczytaj Materiał Uczący</string>
+    <string>Wczytaj materiał uczący</string>
+   </property>
+  </action>
+  <action name="actionNowa_Sie">
+   <property name="text">
+    <string>Nowa Sieć</string>
+   </property>
+  </action>
+  <action name="actionWczytaj_materia_testuj_cy">
+   <property name="text">
+    <string>Wczytaj materiał testujący</string>
    </property>
   </action>
  </widget>
