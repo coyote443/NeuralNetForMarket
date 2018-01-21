@@ -13,11 +13,6 @@ double  Neuron::ALPHA           = 0;
 double  Neuron::ETA             = 0;
 
 
-/// coś jest nie tak z połączeniami
-///
-///     ERROR ERROR ERROR
-///
-
 QString Neuron::toQString(QString SEP){
     QString out;
     QTextStream stream(&out);

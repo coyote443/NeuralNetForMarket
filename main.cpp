@@ -6,22 +6,30 @@
 #include "neuralnetwork.h"
 
 void teacher(LinearNetwork &toTeach){
-    Signals S2 = {1.0, 0.0};       // na końcu każdego sygnału wartość BIAS
-    Signals T2 = {1.0};
+    QVector<Signals> sig = {{0.0, 0.0},{1.0, 0.0},{0.0, 1.0},{1.0, 1.0}};
+    QVector<Signals> res = {{0.0},{1.0},{1.0}, {0.0}};
 
+    qsrand(QTime::currentTime().msec());
+
+    int val;
     do{
-        toTeach.feedForward(S2);
-        toTeach.drawMe();
-    }while(toTeach.backPropagation(T2, 0.01));
-    //toTeach.drawMe();
+        val = rand()%4;
+        toTeach.feedForward(sig[val]);
+        qDebug() << val;
+        qDebug() << toTeach.getResults().back();
+        qDebug() << endl;
+    }while(toTeach.backPropagation(res[val], 0.1));
+    toTeach.drawMe();
 }
+
+
 
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-//    MainWindow w;
-//    w.show();
+    MainWindow w;
+    w.show();
 
     double  beta     =  1.100,      //      Wsp. krzywej aktywacji || brak
             eta      =  0.200,      //      Wsp. uczenia
@@ -31,9 +39,9 @@ int main(int argc, char *argv[])
 
     Topology        topol = {2, 4, 1};
     Specification   spec = {beta, eta, alfa, blur, bias};
-    LinearNetwork   nowaSiec(topol, spec);
+    //LinearNetwork   nowaSiec(topol, spec);
 
-    teacher(nowaSiec);
+    //teacher(nowaSiec);
 
 
     return a.exec();

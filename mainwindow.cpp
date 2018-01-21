@@ -97,7 +97,7 @@ void MainWindow::on_pushButtonLoadDataset_clicked(){
 
 
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::on_pushButton_2_clicked() // button do testów
 {
     createSpecifViaForm();
     //createTopolViaForm();
