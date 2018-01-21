@@ -85,7 +85,37 @@ void MainWindow::on_pushButtonApplyConstruct_clicked(){
 }
 
 void MainWindow::on_pushButtonLoadDataset_clicked(){
-    // jeśli dataset z powodzeniem załadowany, to
+    QString fileName = QFileDialog::getOpenFileName(this, "Otwórz plik z wygenerowaną bazą wektorów uczących",
+                                                    "",tr("Signal (*.signal);; All Files (*)"));
+    QFile inputFile(fileName);
+
+    if (inputFile.open(QIODevice::ReadOnly)){
+        m_LearnVect.clear();
+        QString SEP = "[::]";
+
+        QTextStream in(&inputFile);
+        QStringList topology = in.readLine().split(SEP);
+
+        ui->spinBoxInputLayerSize->setValue( topology[0].toInt() );
+        m_NumOfClasses = topology[1].toInt();
+
+        if(m_TeachingSplitType == OneNetwork)
+            ui->spinBoxOutputLayerSize->setValue(m_NumOfClasses);
+
+        while (!in.atEnd()){
+            QString       stringClas = in.readLine();
+            QStringList   stringVals = in.readLine().split(SEP);
+
+            QVector<double> Vals;
+            for(QString v : stringVals){
+                Vals.push_back(v.toDouble());
+            }
+
+            LearnSig newSig = {stringClas, Vals};
+            m_LearnVect.push_back(newSig);
+        }
+        inputFile.close();
+    }
     ui->pushButtonGenerateNetwork->setEnabled(true);
 }
 

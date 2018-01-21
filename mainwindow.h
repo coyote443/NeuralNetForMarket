@@ -2,14 +2,19 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPair>
 #include "neuralnetwork.h"
 
 namespace Ui {
 class MainWindow;
 }
 
-enum nType{SIGMOID = 0, RBF = 1};
-enum lern{ONE_NET = 0, NET_PER_SIG = 1};
+enum nType      {SIGMOID = 0, RBF = 1};
+enum lern       {ONE_NET = 0, NET_PER_SIG = 1};
+enum splitType  {OneNetwork = 0, ManyNetworks = 1};
+
+typedef QPair<QString, QVector<double>> LearnSig;
+typedef QVector<LearnSig> LearnVect;
 
 class MainWindow : public QMainWindow
 {
@@ -35,9 +40,11 @@ private:
     QVector<NeuralNetwork*> m_Networks;
     Topology                m_Topology;
     Specification           m_Specifi;
+    LearnVect               m_LearnVect;
     int                     m_NeuronType        = 0;
     int                     m_TeachingSplitType = 0;
     double                  m_MinError          = 0;
+    int                     m_NumOfClasses      = 0;
 };
 
 #endif // MAINWINDOW_H
