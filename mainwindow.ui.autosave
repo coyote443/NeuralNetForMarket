@@ -574,7 +574,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Wygeneruj sieć / sieci</string>
+      <string>Wygeneruj ANN</string>
      </property>
     </widget>
    </widget>
@@ -603,13 +603,11 @@
    </property>
    <widget class="QMenu" name="menuPlik">
     <property name="title">
-     <string>Plik</string>
+     <string>Sieć</string>
     </property>
     <addaction name="actionNowa_Sie"/>
     <addaction name="actionWczytaj_Sie"/>
     <addaction name="actionZapisz_Sie"/>
-    <addaction name="actionWczytaj_Materia_Ucz_cy"/>
-    <addaction name="actionWczytaj_materia_testuj_cy"/>
    </widget>
    <addaction name="menuPlik"/>
   </widget>
@@ -624,12 +622,12 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionWczytaj_Sie">
    <property name="text">
-    <string>Wczytaj Sieć</string>
+    <string>Wczytaj</string>
    </property>
   </action>
   <action name="actionZapisz_Sie">
    <property name="text">
-    <string>Zapisz Sieć</string>
+    <string>Zapisz</string>
    </property>
   </action>
   <action name="actionWczytaj_Materia_Ucz_cy">
@@ -639,7 +637,7 @@
   </action>
   <action name="actionNowa_Sie">
    <property name="text">
-    <string>Nowa Sieć</string>
+    <string>Nowa</string>
    </property>
   </action>
   <action name="actionWczytaj_materia_testuj_cy">

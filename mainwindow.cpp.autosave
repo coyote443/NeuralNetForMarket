@@ -158,3 +158,11 @@ void MainWindow::on_pushButton_2_clicked() // button do testów
 }
 
 
+
+void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
+    
+}
+
+void MainWindow::on_pushButton_clicked(){
+    
+}

@@ -38,6 +38,10 @@ private slots:
 
     void on_pushButtonGenerateNetwork_clicked();
 
+    void on_pushButtonStartNetworkLearning_clicked();
+    
+    void on_pushButton_clicked();
+    
 private:
     void createSpecifViaForm();
     void createTopolViaForm();
