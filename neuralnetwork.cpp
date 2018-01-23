@@ -73,7 +73,7 @@ void LinearNetwork::feedForward(const Signals &inSigs){
     }
 }
 
-bool LinearNetwork::backPropagation(const Signals &targetVals, const double targetError){
+double LinearNetwork::backPropagation(const Signals &targetVals){
     Layer &outputLayer = m_Net.back();
     calcAvarageError(targetVals, outputLayer);
 
@@ -85,17 +85,14 @@ bool LinearNetwork::backPropagation(const Signals &targetVals, const double targ
         if(sqErrCounter == 0){
             sqErrCounter        = BLUR_FACT;
             m_RecentAvarageErr  /= BLUR_FACT;
-            m_Progress          = targetError / m_RecentAvarageErr * 100;
             m_Corectness        = m_RecentAvarageErr;
             m_RecentAvarageErr  = 0;
-            if(m_Corectness < targetError)
-                return false;
         }
     }
     calcOutputLayGradients(targetVals, outputLayer);
     calcHiddLayGradients();
     updateWeights();
-    return true;
+    return m_Corectness;
 }
 
 QString LinearNetwork::toQString(QString SEP){

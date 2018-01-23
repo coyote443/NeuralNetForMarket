@@ -22,6 +22,10 @@ typedef QVector<Response>       Responses;
 enum Weight{RANDOM = 666};
 enum Gate {OPEN = 0, CLOSED = 1};
 
+typedef QPair<QString, QVector<double>> LearnSig;
+typedef QVector<LearnSig> LearnVect;
+
+
 
 
 #endif // HEADER_H

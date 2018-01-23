@@ -2,22 +2,15 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QPair>
-#include <QFileDialog>
-#include <QInputDialog>
-#include <QMessageBox>
-#include "neuralnetwork.h"
+#include "headermain.h"
+#include "teacher.h"
+
 
 namespace Ui {
 class MainWindow;
 }
 
-enum nType      {SIGMOID = 0, RBF = 1};
-enum lern       {ONE_NET = 0, NET_PER_SIG = 1};
-enum splitType  {OneNetwork = 0, ManyNetworks = 1};
 
-typedef QPair<QString, QVector<double>> LearnSig;
-typedef QVector<LearnSig> LearnVect;
 
 class MainWindow : public QMainWindow
 {
@@ -33,10 +26,14 @@ private slots:
     void on_actionNowa_Sie_triggered();
     void on_pushButtonApplyConstruct_clicked();
     void on_pushButtonLoadDataset_clicked();
+    void on_pushButtonGenerateNetwork_clicked();
+    void on_pushButtonStartNetworkLearning_clicked();
+    void on_pushButtonTestNetwork_clicked();
+    void setEpochOnStatusBar();
+    void setEpochProgress();
+
 
     void on_pushButton_2_clicked();
-
-    void on_pushButtonGenerateNetwork_clicked();
 
 private:
     void createSpecifViaForm();
@@ -46,10 +43,19 @@ private:
     Topology                m_Topology;
     Specification           m_Specifi;
     LearnVect               m_LearnVect;
+    QMap<QString, int>      m_LearnClasses;
+    Teacher                *m_Teacher;
+    int                     m_Epoch             = 0;
+    int                     m_EpochProgress     = 0;
+    QProgressBar *          m_ProgBar;
     int                     m_NeuronType        = 0;
     int                     m_TeachingSplitType = 0;
     double                  m_MinError          = 0;
     int                     m_NumOfClasses      = 0;
+    void setClassesNamesInGui(const QStringList &classes);
+    void setInOutSizesInGui(const QStringList &topology);
+    void makeClassNamesMap(QStringList classes);
+    void resetEpochProgress();
 };
 
 #endif // MAINWINDOW_H

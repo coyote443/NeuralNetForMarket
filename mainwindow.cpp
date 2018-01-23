@@ -8,6 +8,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    m_Teacher = new Teacher(this);
+    connect(m_Teacher, SIGNAL(nextEpoch()), this, SLOT(setEpochOnStatusBar()));
+    connect(m_Teacher, SIGNAL(nextOnePercentOfEpoch()), this, SLOT(setEpochProgress()));
+
+    m_ProgBar = ui->progressBarError;
+
     ui->frameLoadGenerate->setEnabled(false);
     ui->groupBoxTopology->setEnabled(false);
     ui->groupBoxSpecifi->setEnabled(false);
@@ -85,23 +92,42 @@ void MainWindow::on_pushButtonApplyConstruct_clicked(){
     ui->groupBoxTopology->setEnabled(true);
 }
 
+void MainWindow::setClassesNamesInGui(const QStringList &classes){
+    QString lernCls;
+    for(QString signClass : classes)
+        lernCls += QString("'%1' ").arg(signClass);
+    ui->textBrowserSignalClasses->setText(lernCls);
+}
+
+void MainWindow::setInOutSizesInGui(const QStringList &topology){
+    ui->spinBoxInputLayerSize->setValue( topology[0].toInt() );
+    m_NumOfClasses = topology[1].toInt();
+    if(m_TeachingSplitType == OneNetwork)
+        ui->spinBoxOutputLayerSize->setValue(m_NumOfClasses);
+}
+
+void MainWindow::makeClassNamesMap(QStringList classes){
+    for(int pos = 0; pos < classes.size(); pos++)
+        m_LearnClasses.insert(classes[pos], pos);
+}
+
 void MainWindow::on_pushButtonLoadDataset_clicked(){
     QString fileName = QFileDialog::getOpenFileName(this, "Otwórz plik z wygenerowaną bazą wektorów uczących",
                                                     "",tr("Signal (*.signal);; All Files (*)"));
     QFile inputFile(fileName);
 
     if (inputFile.open(QIODevice::ReadOnly)){
-        m_LearnVect.clear();
         QString SEP = "[::]";
 
+        m_LearnVect.clear();
+        m_LearnClasses.clear();
+
         QTextStream in(&inputFile);
-        QStringList topology = in.readLine().split(SEP);
-
-        ui->spinBoxInputLayerSize->setValue( topology[0].toInt() );
-        m_NumOfClasses = topology[1].toInt();
-
-        if(m_TeachingSplitType == OneNetwork)
-            ui->spinBoxOutputLayerSize->setValue(m_NumOfClasses);
+        QStringList topology    = in.readLine().split(SEP);
+        QStringList classes     = in.readLine().split(SEP);
+        setClassesNamesInGui(classes);
+        makeClassNamesMap(classes);
+        setInOutSizesInGui(topology);
 
         while (!in.atEnd()){
             QString       stringClas = in.readLine();
@@ -142,19 +168,41 @@ void MainWindow::on_pushButtonGenerateNetwork_clicked(){
     }
     QMessageBox::information(this, "Powodzenie", "Proces generowania zakończony powodzeniem");
     ui->groupBoxButtonsStartAndTest->setEnabled(true);
+
 }
 
+void MainWindow::setEpochOnStatusBar(){
+    m_Epoch++;
+    QString status = QString("Aktualnie uczona sieć nr. %1\t\t Epoka nr. %2").arg(1).arg(m_Epoch);
+    ui->statusBar->showMessage(status);
+    resetEpochProgress();
+}
+
+void MainWindow::resetEpochProgress(){
+    m_EpochProgress = 0;
+    ui->progressBarEpoch->setValue(m_EpochProgress);
+}
+
+void MainWindow::setEpochProgress(){
+    m_EpochProgress++;
+    ui->progressBarEpoch->setValue(m_EpochProgress);
+}
 
 
 
 void MainWindow::on_pushButton_2_clicked() // button do testów
 {
-    createSpecifViaForm();
-    //createTopolViaForm();
-    for(int dd : m_Topology)
-        qDebug() << dd;
-    for(double ddd : m_Specifi)
-        qDebug() << ddd;
+
 }
 
 
+
+void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
+    m_Teacher->teachThoseNetworks(m_Networks, m_LearnVect, m_LearnClasses, m_MinError, *m_ProgBar);
+
+
+}
+
+void MainWindow::on_pushButtonTestNetwork_clicked(){
+
+}

@@ -11,7 +11,7 @@ public:
                     NeuralNetwork(const Topology &topology, const Specification &specify);
     virtual         ~NeuralNetwork(){qDebug() << "jestem w destruktorze Network";}
     virtual void    feedForward(const Signals &inSigs) = 0;
-    virtual bool    backPropagation(const Signals &learnVect, const double targetError) = 0;
+    virtual double  backPropagation(const Signals &learnVect) = 0;
     virtual void    loadNetwork(QString local) = 0;
     virtual QString toQString(QString SEP = "[::]") = 0;
     Signals         getResults() const;
@@ -27,7 +27,7 @@ protected:
     double          m_Error             = 0;    //  Błąd dla wybranej probki
     double          m_RecentAvarageErr  = 0;    //  Uśrednienie błędu dla liczby próbek BLUR_FACT
     double          m_Progress          = 0;    //  Składowa dla funkcji
-    double          m_Corectness        = 0;
+    double          m_Corectness        = 1;    //  Zaczynamy z błędem równym 100%
     double          BETA,           //      Wsp. krzywej aktywacji || brak
                     ETA,            //      Wsp. uczenia    (0.0 - Powolne, 0.2 Średnie, 1.0 B. duże)
                     ALPHA,          //      Wsp. momentum   (0.0 - Brak, 0.5 Średnie)
@@ -44,7 +44,7 @@ public:
             ~LinearNetwork();
 
     void    feedForward(const Signals &inSigs);
-    bool    backPropagation(const Signals &targetVals, const double targetError);
+    double  backPropagation(const Signals &targetVals);
     void    loadNetwork(QString local);
     QString toQString(QString SEP = "[::]");
 

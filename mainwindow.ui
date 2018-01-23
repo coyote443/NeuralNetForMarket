@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>929</width>
-    <height>629</height>
+    <width>928</width>
+    <height>748</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,12 +17,12 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QProgressBar" name="progressBar">
+   <widget class="QProgressBar" name="progressBarError">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>500</y>
-      <width>851</width>
+      <y>650</y>
+      <width>891</width>
       <height>31</height>
      </rect>
     </property>
@@ -34,60 +34,6 @@
     </property>
     <property name="value">
      <number>0</number>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_6">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>460</y>
-      <width>841</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Poprawność odpowiedzi sieci</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit_2">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>410</x>
-      <y>400</y>
-      <width>451</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Kolejne rozmiary warstw ukrytych sieci.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="text">
-     <string>BRAK</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_15">
-    <property name="geometry">
-     <rect>
-      <x>410</x>
-      <y>370</y>
-      <width>171</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Nierozróżnialne klasy testowe</string>
     </property>
    </widget>
    <widget class="QGroupBox" name="groupBoxSpecifi">
@@ -182,7 +128,7 @@
            <double>0.050000000000000</double>
           </property>
           <property name="value">
-           <double>0.200000000000000</double>
+           <double>0.050000000000000</double>
           </property>
          </widget>
         </item>
@@ -259,7 +205,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>380</y>
+      <y>470</y>
       <width>391</width>
       <height>71</height>
      </rect>
@@ -280,7 +226,7 @@
       <string>Rozpocznij naukę sieci</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="pushButtonTestNetwork">
      <property name="geometry">
       <rect>
        <x>190</x>
@@ -435,7 +381,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>140</y>
+      <y>130</y>
       <width>561</width>
       <height>111</height>
      </rect>
@@ -537,7 +483,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>270</y>
+      <y>340</y>
       <width>561</width>
       <height>71</height>
      </rect>
@@ -574,15 +520,15 @@
       </rect>
      </property>
      <property name="text">
-      <string>Wygeneruj sieć / sieci</string>
+      <string>Wygeneruj ANN</string>
      </property>
     </widget>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
      <rect>
-      <x>610</x>
-      <y>340</y>
+      <x>770</x>
+      <y>370</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -591,45 +537,144 @@
      <string>PushButton</string>
     </property>
    </widget>
+   <widget class="QGroupBox" name="groupBoxNonDiffClasesView">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>460</y>
+      <width>491</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Nierozróżnialne klasy testowe</string>
+    </property>
+    <widget class="QLineEdit" name="lineEdit_2">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>451</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Kolejne rozmiary warstw ukrytych sieci.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>BRAK</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>250</y>
+      <width>561</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Klasy Sygnałów</string>
+    </property>
+    <widget class="QTextBrowser" name="textBrowserSignalClasses">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>541</width>
+       <height>41</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QProgressBar" name="progressBarEpoch">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>580</y>
+      <width>891</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>0</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>549</y>
+      <width>881</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>% ukończenia Epoki</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>620</y>
+      <width>881</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>% poprawności odpowiedzi</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>929</width>
+     <width>928</width>
      <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPlik">
     <property name="title">
-     <string>Plik</string>
+     <string>Sieć</string>
     </property>
     <addaction name="actionNowa_Sie"/>
     <addaction name="actionWczytaj_Sie"/>
     <addaction name="actionZapisz_Sie"/>
-    <addaction name="actionWczytaj_Materia_Ucz_cy"/>
-    <addaction name="actionWczytaj_materia_testuj_cy"/>
    </widget>
    <addaction name="menuPlik"/>
-  </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionWczytaj_Sie">
    <property name="text">
-    <string>Wczytaj Sieć</string>
+    <string>Wczytaj</string>
    </property>
   </action>
   <action name="actionZapisz_Sie">
    <property name="text">
-    <string>Zapisz Sieć</string>
+    <string>Zapisz</string>
    </property>
   </action>
   <action name="actionWczytaj_Materia_Ucz_cy">
@@ -639,7 +684,7 @@
   </action>
   <action name="actionNowa_Sie">
    <property name="text">
-    <string>Nowa Sieć</string>
+    <string>Nowa</string>
    </property>
   </action>
   <action name="actionWczytaj_materia_testuj_cy">
