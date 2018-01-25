@@ -12,12 +12,11 @@ MainWindow::MainWindow(QWidget *parent) :
     m_Teacher = new Teacher(this);
     connect(m_Teacher, SIGNAL(nextEpoch()), this, SLOT(setEpochOnStatusBar()));
     connect(m_Teacher, SIGNAL(nextOnePercentOfEpoch()), this, SLOT(setEpochProgress()));
+    connect(m_Teacher, SIGNAL(netTrained()), this, SLOT(setLrndProgress()));
 
     m_ProgBar = ui->progressBarError;
 
-    ui->frameLoadGenerate->setEnabled(false);
-    ui->groupBoxTopology->setEnabled(false);
-    ui->groupBoxSpecifi->setEnabled(false);
+    ui->groupBoxAllNetsControls->setEnabled(false);
     ui->groupBoxButtonsStartAndTest->setEnabled(false);
     ui->groupBoxWayOfNetConstruct->setEnabled(false);
 }
@@ -87,9 +86,7 @@ void MainWindow::on_pushButtonApplyConstruct_clicked(){
     ui->radioButtonNeuronSigmoid->isChecked() ? m_NeuronType = SIGMOID : m_NeuronType = RBF;
     ui->radioButtonOneNetworkForAllClases->isChecked() ? m_TeachingSplitType = ONE_NET : m_TeachingSplitType = NET_PER_SIG;
     ui->groupBoxWayOfNetConstruct->setEnabled(false);
-    ui->groupBoxSpecifi->setEnabled(true);
-    ui->frameLoadGenerate->setEnabled(true);
-    ui->groupBoxTopology->setEnabled(true);
+    ui->groupBoxAllNetsControls->setEnabled(true);
 }
 
 void MainWindow::setClassesNamesInGui(const QStringList &classes){
@@ -112,6 +109,8 @@ void MainWindow::makeClassNamesMap(QStringList classes){
 }
 
 void MainWindow::on_pushButtonLoadDataset_clicked(){
+    resetAllProgAndStatus();
+
     QString fileName = QFileDialog::getOpenFileName(this, "Otwórz plik z wygenerowaną bazą wektorów uczących",
                                                     "",tr("Signal (*.signal);; All Files (*)"));
     QFile inputFile(fileName);
@@ -150,6 +149,7 @@ void MainWindow::on_pushButtonLoadDataset_clicked(){
 
 
 void MainWindow::on_pushButtonGenerateNetwork_clicked(){
+    resetAllProgAndStatus();
     createSpecifViaForm();
     createTopolViaForm();
 
@@ -171,11 +171,43 @@ void MainWindow::on_pushButtonGenerateNetwork_clicked(){
 
 }
 
+
+
+
+void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
+    resetAllProgAndStatus();
+    m_Teacher->teachThoseNetworks(m_Networks, m_LearnVect, m_LearnClasses, m_MinError, *m_ProgBar);
+    ui->progressBarNetworkTrained->setValue(100);
+}
+
+void MainWindow::on_pushButtonTestNetwork_clicked(){
+    resetAllProgAndStatus();
+}
+
+
+///     PROGRESS AND STATUS BARS
+
+void MainWindow::resetAllProgAndStatus(){
+    resetEpochOnStatusBar();
+    resetEpochProgress();
+    resetLrndProgress();
+    resetErrProgress();
+}
+
+void MainWindow::resetEpochOnStatusBar(){
+    ui->statusBar->showMessage("");
+    m_EpochCounter = 1;
+}
+
 void MainWindow::setEpochOnStatusBar(){
-    m_Epoch++;
-    QString status = QString("Aktualnie uczona sieć nr. %1\t\t Epoka nr. %2").arg(1).arg(m_Epoch);
+    m_EpochCounter++;
+    QString status = QString("Aktualnie uczona sieć nr. %1\t\t Epoka nr. %2").arg(m_LrndCounter).arg(m_EpochCounter);
     ui->statusBar->showMessage(status);
     resetEpochProgress();
+}
+
+void MainWindow::resetErrProgress(){
+    ui->progressBarError->setValue(0);
 }
 
 void MainWindow::resetEpochProgress(){
@@ -188,21 +220,17 @@ void MainWindow::setEpochProgress(){
     ui->progressBarEpoch->setValue(m_EpochProgress);
 }
 
-
-
-void MainWindow::on_pushButton_2_clicked() // button do testów
-{
-
+void MainWindow::resetLrndProgress(){
+    m_LrndCounter      = 0;
+    m_LrndNetsProgress = 0;
+    ui->progressBarNetworkTrained->setValue(m_LrndNetsProgress);
 }
 
-
-
-void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
-    m_Teacher->teachThoseNetworks(m_Networks, m_LearnVect, m_LearnClasses, m_MinError, *m_ProgBar);
-
-
+void MainWindow::setLrndProgress(){
+    m_LrndCounter++;
+    m_LrndNetsProgress += 1.0 / m_Networks.size() * 100;
+    ui->progressBarNetworkTrained->setValue(m_LrndNetsProgress);
+    resetEpochOnStatusBar();
 }
 
-void MainWindow::on_pushButtonTestNetwork_clicked(){
-
-}
+///     END PROGRESS AND STATUS BARS

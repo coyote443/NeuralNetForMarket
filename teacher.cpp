@@ -6,17 +6,16 @@ Teacher::Teacher(QObject *parent): QObject(parent){
     qsrand(QTime::currentTime().msec());
 }
 
-void Teacher::teachThoseNetworks(QVector<LinearNetwork *> &nets, const LearnVect &sig,
-                                 const QMap<QString, int> sigClasses, double targetError, QProgressBar &progBar){
+void Teacher::teachOneNetwork(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig, const QMap<QString, int> sigClasses,
+                              QProgressBar &progBar, double targetError){
+    int howMany = (netSize > 1 ? netSize : 1);
+    Signals targetVals(howMany);
+
     LearnVect learnVect = sig;
-
-    LinearNetwork * net = nets.back();
-    Signals targetVals(sig.size());
-           std::random_shuffle(learnVect.begin(), learnVect.end());
-
     double currentError = 1;
+    std::random_shuffle(learnVect.begin(), learnVect.end());
 
-    do{
+    do{ /// Teach those network until it reaches destinated error rate
         std::random_shuffle(learnVect.begin(), learnVect.end());
 
         QVector<int> progresPoints;
@@ -27,23 +26,31 @@ void Teacher::teachThoseNetworks(QVector<LinearNetwork *> &nets, const LearnVect
             sigSize         = learnVect.size();
 
         for(LearnSig lernSig : learnVect){
-            for(double &val : targetVals) val = 0;
+            /// Make target vals Vector
+            QString takenClass = lernSig.first;                       /// Take signal class
 
-            // Wanted responses vector are full with zeros. We fill pos related to de class by val 1
-            QString sigClass = lernSig.first;
-            int posToAddPosVal = sigClasses[sigClass];
-            targetVals[posToAddPosVal] = 1;
+            for(double &val : targetVals)
+                val = 0;
 
-//            qDebug() << sigClass;
-//            for(double &val : targetVals) qDebug() << val;
+            switch (netSize) {
+            case 1:
+                targetVals[ sigClasses[takenClass] ]  = 1;            /// Only output related with takenClass have value '1'
+                break;
+            default:
+                if(netNr == sigClasses[takenClass])                   /// Only network related with takenClass
+                    targetVals[0] = 1;                                /// have one output with '1' value
+                break;
+            }
 
-
-            // FeedForward
+            /// FeedForward
             const Signals &givenSignal = lernSig.second;
-            net->feedForward(givenSignal);
-            currentError = net->backPropagation(targetVals);
+            nets.feedForward(givenSignal);
+
+            /// BackPropagation
+            currentError = nets.backPropagation(targetVals);
             qDebug() << currentError;
 
+            /// Set Status Bar
             progressCounter++;
             double progtmp = (double)progressCounter / (double)sigSize * 100;
             if((int)progtmp > progresPoints.back()){
@@ -54,6 +61,19 @@ void Teacher::teachThoseNetworks(QVector<LinearNetwork *> &nets, const LearnVect
         }
         emit nextEpoch();
     }while(currentError > targetError);
+}
 
-
+void Teacher::teachThoseNetworks(QVector<LinearNetwork *> &nets, const LearnVect &sig, const QMap<QString, int> sigClasses,
+                                  double targetError, QProgressBar &progBarEpoch){
+    if(nets.size() == 1){
+        teachOneNetwork(*nets.first(), 0, 1, sig, sigClasses, progBarEpoch, targetError);
+        emit netTrained();
+    }
+    else{
+        for(int pos = 0; pos < nets.size(); pos++){
+            LinearNetwork * linearNetwork = nets[pos];
+            teachOneNetwork(*linearNetwork, pos, nets.size(), sig, sigClasses, progBarEpoch, targetError);
+            emit netTrained();
+        }
+    }
 }
