@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 
 
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -21,34 +20,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->groupBoxWayOfNetConstruct->setEnabled(false);
 }
 
-MainWindow::~MainWindow()
-{
-    for(LinearNetwork *  neur : m_Networks )
-        delete neur;
+MainWindow::~MainWindow(){
+    deleteAndClearNetworks();
     delete ui;
 }
 
-void MainWindow::createSpecifViaForm(){
-    m_Specifi.clear();
-    m_Specifi.push_back(ui->doubleSpinBoxBETA->value());
-    m_Specifi.push_back(ui->doubleSpinBoxETA->value());
-    m_Specifi.push_back(ui->doubleSpinBoxALPHA->value());
-    m_Specifi.push_back(ui->spinBoxBLURR->value());
-    m_Specifi.push_back(ui->checkBoxBIAS->isChecked());
-    m_MinError = ui->doubleSpinBoxMIN_ERR->value();
-}
-
-// dodaj regex validator dla lineEdit
-void MainWindow::createTopolViaForm(){
-    m_Topology.clear();
-    m_Topology.push_back(ui->spinBoxInputLayerSize->value());
-
-    QStringList hiddLay = ui->lineEditNumOfHiddLays->text().split(" ");
-
-    for(QString size : hiddLay)
-        m_Topology.push_back(size.toInt());
-
-    m_Topology.push_back(ui->spinBoxOutputLayerSize->value());
+void MainWindow::deleteAndClearNetworks(){
+    for(LinearNetwork *  neur : m_Networks )
+        delete neur;
+    m_Networks.clear();
 }
 
 void MainWindow::on_actionZapisz_Sie_triggered(){
@@ -74,11 +54,57 @@ void MainWindow::on_actionZapisz_Sie_triggered(){
     file.close();
 }
 
-void MainWindow::on_actionWczytaj_Sie_triggered(){
 
+
+
+void MainWindow::on_actionWczytaj_Sie_triggered(){
+    QString fileName = QFileDialog::getOpenFileName(this, "Wczytaj sieć/sieci", "", tr("ANN (*.ann);;All Files (*)"));
+    QFile inputFile(fileName);
+    if (inputFile.open(QIODevice::ReadOnly)){
+        QString SEP = "[::]";
+        QTextStream in(&inputFile);
+
+        deleteAndClearNetworks();
+        int networksToGnerate = in.readLine().toInt();
+        QStringList netChar  = in.readLine().split(SEP);
+        setNetSpecify(netChar);
+        createSpecifViaForm();      // czy to nie będzie przeszkadzało przy uczeniu?
+
+        QStringList topology = in.readLine().split(SEP);
+        setNetTopology(topology);
+        createTopologyViaForm();
+
+
+
+        // po wczytaniu sieci powinna być mozliwość zmiany jej parametrów. Nie możemy zmieniać ilości warstw ukrytych
+        // ponadto po wygenerowaniu nowej sieci, ma być usuwana z pamięci stara, zaś okno parametrów zerowane do stanu bazowego
+        // po wczytaniu sieci też ma być wszystko usuwane
+
+        while (!in.atEnd()){
+            for(int netNr = 0; netNr < networksToGnerate; netNr++){
+                LinearNetwork * tmpNet = new LinearNetwork(m_Topology, m_Specifi);
+                m_Networks.push_back(tmpNet);
+                for(int size : m_Topology){
+                    QStringList neuronConnAndWeights = in.readLine().split(SEP);
+                    // dodaj funkcje change connections vals i każdemu neuronowi wysyłaj vektor odpowiedni.
+
+
+
+                }
+            }
+
+
+        }
+        inputFile.close();
+        ui->groupBoxAllNetsControls->setEnabled(true);
+        ui->groupBoxTopology->setEnabled(false);
+    }
 }
 
 void MainWindow::on_actionNowa_Sie_triggered(){
+    deleteAndClearNetworks();
+    ui->groupBoxAllNetsControls->setEnabled(false);
+    ui->groupBoxButtonsStartAndTest->setEnabled(false);
     ui->groupBoxWayOfNetConstruct->setEnabled(true);
 }
 
@@ -107,6 +133,7 @@ void MainWindow::makeClassNamesMap(QStringList classes){
     for(int pos = 0; pos < classes.size(); pos++)
         m_LearnClasses.insert(classes[pos], pos);
 }
+
 
 void MainWindow::on_pushButtonLoadDataset_clicked(){
     resetAllProgAndStatus();
@@ -145,19 +172,11 @@ void MainWindow::on_pushButtonLoadDataset_clicked(){
     ui->pushButtonGenerateNetwork->setEnabled(true);
 }
 
-
-
-
 void MainWindow::on_pushButtonGenerateNetwork_clicked(){
     resetAllProgAndStatus();
     createSpecifViaForm();
-    createTopolViaForm();
-
-    if(m_Networks.empty() != true){
-        for(LinearNetwork *  neur : m_Networks )
-            delete neur;
-        m_Networks.clear();
-    }
+    createTopologyViaForm();
+    deleteAndClearNetworks();
 
     int numberOfNetworks = 0;
     m_TeachingSplitType == 0 ? numberOfNetworks = 1 : numberOfNetworks = m_NumOfClasses;
@@ -168,21 +187,82 @@ void MainWindow::on_pushButtonGenerateNetwork_clicked(){
     }
     QMessageBox::information(this, "Powodzenie", "Proces generowania zakończony powodzeniem");
     ui->groupBoxButtonsStartAndTest->setEnabled(true);
-
 }
-
-
-
 
 void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
     resetAllProgAndStatus();
+    createSpecifViaForm();
+    for(LinearNetwork * net : m_Networks){
+        net->changeNetSpecification(m_Specifi);
+    }
+
     m_Teacher->teachThoseNetworks(m_Networks, m_LearnVect, m_LearnClasses, m_MinError, *m_ProgBar);
     ui->progressBarNetworkTrained->setValue(100);
 }
 
 void MainWindow::on_pushButtonTestNetwork_clicked(){
     resetAllProgAndStatus();
+    createSpecifViaForm();
+    for(LinearNetwork * net : m_Networks){
+        net->changeNetSpecification(m_Specifi);
+    }
 }
+
+
+///     TOPOLOGY AND NET SPECIFICATION FORMS
+
+
+void MainWindow::createSpecifViaForm(){
+    m_Specifi.clear();
+    m_Specifi.push_back(ui->doubleSpinBoxBETA->value());
+    m_Specifi.push_back(ui->doubleSpinBoxETA->value());
+    m_Specifi.push_back(ui->doubleSpinBoxALPHA->value());
+    m_Specifi.push_back(ui->spinBoxBLURR->value());
+    m_Specifi.push_back(ui->checkBoxBIAS->isChecked());
+    m_MinError = ui->doubleSpinBoxMIN_ERR->value();
+}
+
+void MainWindow::setNetSpecify(QStringList &NetChar){
+    ui->doubleSpinBoxBETA->setValue(NetChar[0].toDouble());
+    ui->doubleSpinBoxETA->setValue(NetChar[1].toDouble());
+    ui->doubleSpinBoxALPHA->setValue(NetChar[2].toDouble());
+    ui->spinBoxBLURR->setValue(NetChar[3].toDouble());
+    ui->checkBoxBIAS->setChecked(NetChar[4].toInt());
+}
+
+// dodaj regex validator dla lineEdit
+void MainWindow::createTopologyViaForm(){
+    m_Topology.clear();
+    m_Topology.push_back(ui->spinBoxInputLayerSize->value());
+
+    QStringList hiddLay = ui->lineEditNumOfHiddLays->text().split(" ");
+
+    for(QString size : hiddLay)
+        m_Topology.push_back(size.toInt());
+
+    m_Topology.push_back(ui->spinBoxOutputLayerSize->value());
+}
+
+void MainWindow::setNetTopology(QStringList &topology){
+    /// If bias is added, we should remove one neuron from input, and from each hidd layer
+    /// Those bias neuron will be created during network creating process
+    int bias = 0;
+    if(ui->checkBoxBIAS->isChecked())
+        bias = 1;
+
+    ui->spinBoxOutputLayerSize->setValue( topology.back().toInt() );
+    ui->spinBoxInputLayerSize->setValue( topology.first().toInt() - bias);
+
+    QStringList Vals;
+    for(int pos = 1; pos < topology.size() - 1; pos++){
+        int tmp = topology[pos].toInt() - bias;
+        Vals.push_back( QString("%1").arg(tmp) );
+    }
+    ui->lineEditNumOfHiddLays->setText(Vals.join(" "));
+}
+
+///     END TOPOLOGY AND NET SPECIFICATION FORMS
+
 
 
 ///     PROGRESS AND STATUS BARS

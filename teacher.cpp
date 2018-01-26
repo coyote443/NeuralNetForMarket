@@ -8,7 +8,7 @@ Teacher::Teacher(QObject *parent): QObject(parent){
 
 void Teacher::teachOneNetwork(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig, const QMap<QString, int> sigClasses,
                               QProgressBar &progBar, double targetError){
-    int howMany = (netSize > 1 ? netSize : 1);
+    int howMany = (netSize > 1 ? 1 : sigClasses.size());
     Signals targetVals(howMany);
 
     LearnVect learnVect = sig;
@@ -48,7 +48,7 @@ void Teacher::teachOneNetwork(LinearNetwork &nets, int netNr, int netSize, const
 
             /// BackPropagation
             currentError = nets.backPropagation(targetVals);
-            qDebug() << currentError;
+           // qDebug() << currentError;
 
             /// Set Status Bar
             progressCounter++;

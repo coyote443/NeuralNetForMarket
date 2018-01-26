@@ -14,6 +14,7 @@ public:
     virtual double  backPropagation(const Signals &learnVect) = 0;
     virtual void    loadNetwork(QString local) = 0;
     virtual QString toQString(QString SEP = "[::]") = 0;
+    virtual void    changeNetSpecification(const Specification &specify) = 0;
     Signals         getResults() const;
     void            drawMe() const;
 
@@ -46,6 +47,7 @@ public:
     void    feedForward(const Signals &inSigs);
     double  backPropagation(const Signals &targetVals);
     void    loadNetwork(QString local);
+    void    changeNetSpecification(const Specification &specify);
     QString toQString(QString SEP = "[::]");
 
 private:

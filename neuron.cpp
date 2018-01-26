@@ -14,12 +14,11 @@ double  Neuron::ETA             = 0;
 
 
 QString Neuron::toQString(QString SEP){
-    QString out;
-    QTextStream stream(&out);
+    QStringList tmpLst;
     for(Connection con : m_Connections){
-        stream << con.m_NeuronIndex << SEP << con.m_Weight << SEP;
+        tmpLst.push_back( QString("%1%2%3").arg(con.m_NeuronIndex).arg(SEP).arg(con.m_Weight) );
     }
-    return out;
+    return tmpLst.join(SEP);
 }
 
 

@@ -34,7 +34,7 @@ private slots:
 
 private:
     void createSpecifViaForm();
-    void createTopolViaForm();
+    void createTopologyViaForm();
     void setClassesNamesInGui(const QStringList &classes);
     void setInOutSizesInGui(const QStringList &topology);
     void makeClassNamesMap(QStringList classes);
@@ -61,6 +61,9 @@ private:
     double                  m_MinError          = 0;
     int                     m_NumOfClasses      = 0;
 
+    void setNetSpecify(QStringList &NetChar);
+    void setNetTopology(QStringList &topology);
+    void deleteAndClearNetworks();
 };
 
 #endif // MAINWINDOW_H

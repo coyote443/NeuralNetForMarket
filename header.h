@@ -5,6 +5,7 @@
 #include <QTime>
 #include <QDebug>
 #include <QTextStream>
+#include <QStringList>
 #include <QThread>
 #include <cmath>
 #include <QFile>

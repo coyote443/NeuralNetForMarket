@@ -95,26 +95,48 @@ double LinearNetwork::backPropagation(const Signals &targetVals){
     return m_Corectness;
 }
 
+
+void LinearNetwork::changeNetSpecification(const Specification &specify){
+        m_Specifi = specify;
+        BETA     =  m_Specifi[0],
+        ETA      =  m_Specifi[1],
+        ALPHA    =  m_Specifi[2],
+        BLUR_FACT=  m_Specifi[3],
+        BIAS_VAL =  m_Specifi[4];
+
+        Neuron::setETA(ETA);
+        Neuron::setALFA(ALPHA);
+}
+
+
+
+
 QString LinearNetwork::toQString(QString SEP){
     QString toOut;
     QTextStream stream(&toOut);
+    QStringList tmpLst;
 
     for(double specification : m_Specifi){
-        stream << specification << SEP;
+        tmpLst.push_back( QString("%1").arg(specification) );
     }
+    stream << tmpLst.join(SEP);
     stream << endl;
 
+    tmpLst.clear();
     for(int val : m_Topology){
-        stream << val << SEP;
+        tmpLst.push_back( QString("%1").arg(val) );
     }
+    stream << tmpLst.join(SEP);
     stream << endl;
 
+    tmpLst.clear();
     for(Layer layer : m_Net){
         for(Neuron * neuron : layer){
             stream << neuron->toQString(SEP);
+            stream << endl;
         }
     }
-    stream << endl;
+
     return toOut;
 }
 
