@@ -62,7 +62,7 @@ private:
     int                     m_NumOfClasses      = 0;
 
     void setNetSpecify(QStringList &NetChar);
-    void setNetTopology(QStringList &topology);
+    void setNetTopologyForm(QStringList &topology);
     void deleteAndClearNetworks();
 };
 

@@ -59,8 +59,8 @@ class LinearNeuron : public Neuron{
 public:
             LinearNeuron() : Neuron() {}
             ~LinearNeuron();
-    void    createConnection(int sourceIndex, double weightVal = RANDOM) override; // virtual
-    void    takeThisSignal(Response fromPrevLayer) override; // virtual
+    void    createConnection(int sourceIndex, double weightVal = RANDOM) override;  // virtual
+    void    takeThisSignal(Response fromPrevLayer) override;                        // virtual
     void    pushSignal();
 
 protected:
@@ -82,7 +82,7 @@ protected:
 class LinInputNeuron : public LinearNeuron{
 public:
             LinInputNeuron() : LinearNeuron(){}
-            ~LinInputNeuron(){qDebug()<< "uruchamiam destruktor neuronuLiniowegoInput";}
+            ~LinInputNeuron(){ }
     void    createConnection(int sourceIndex);
     void    pushSignal();
 };
@@ -90,7 +90,7 @@ public:
 class LinBiasNeuron : public LinInputNeuron{
 public:
     LinBiasNeuron() : LinInputNeuron(){}
-    ~LinBiasNeuron(){qDebug()<< "uruchamiam destruktor neuronuBIAS";}
+    ~LinBiasNeuron(){ }
     void takeThisSignal(Response);
 };
 

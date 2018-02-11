@@ -37,7 +37,38 @@ Signals NeuralNetwork::getResults() const{
 
 LinearNetwork::LinearNetwork(Topology &topol, Specification & specif): NeuralNetwork(topol, specif){
     createLayers();
-    createConnections();
+    createNewConnections();
+}
+
+void LinearNetwork::createGivenConnections(AllNetConn &netCon)
+{
+    for(int neuronNum = 0; neuronNum < netCon.size(); neuronNum++){
+        NeuronConn &neurCon     = netCon[neuronNum];
+        int neuronPos           = neuronNum;
+        int layerPos            = 0;
+        bool done               = false;
+
+        for(Layer lay : m_Net){
+            if(neuronPos > lay.size() - 1 && done == false){
+                neuronPos -= lay.size();
+                layerPos++;
+            }
+            else if(done == false)
+                done = true;
+        }
+
+        Neuron &neuron          = *m_Net[layerPos][neuronPos];
+
+        QVector<int> &indexes   = neurCon.first;
+        QVector<double> &weights= neurCon.second;
+        for(int takenC = 0; takenC < indexes.size(); takenC++)
+            neuron.createConnection(indexes[takenC], weights[takenC]);
+    }
+}
+
+LinearNetwork::LinearNetwork(Topology &topol, Specification &specif, AllNetConn &netCon): NeuralNetwork(topol, specif){
+    createLayers();
+    createGivenConnections(netCon);
 }
 
 LinearNetwork::~LinearNetwork(){
@@ -95,7 +126,6 @@ double LinearNetwork::backPropagation(const Signals &targetVals){
     return m_Corectness;
 }
 
-
 void LinearNetwork::changeNetSpecification(const Specification &specify){
         m_Specifi = specify;
         BETA     =  m_Specifi[0],
@@ -107,9 +137,6 @@ void LinearNetwork::changeNetSpecification(const Specification &specify){
         Neuron::setETA(ETA);
         Neuron::setALFA(ALPHA);
 }
-
-
-
 
 QString LinearNetwork::toQString(QString SEP){
     QString toOut;
@@ -130,19 +157,16 @@ QString LinearNetwork::toQString(QString SEP){
     stream << endl;
 
     tmpLst.clear();
+
+    QStringList tmpList;
     for(Layer layer : m_Net){
         for(Neuron * neuron : layer){
-            stream << neuron->toQString(SEP);
-            stream << endl;
+            tmpList.push_back(neuron->toQString(SEP));
         }
     }
+    toOut += tmpList.join("\n");
 
     return toOut;
-}
-
-
-void LinearNetwork::loadNetwork(QString local){
-    // otwórz okno wczytania
 }
 
 void LinearNetwork::createLayers(){
@@ -174,7 +198,7 @@ void LinearNetwork::createLayers(){
     }
 }
 
-void LinearNetwork::createConnections(){
+void LinearNetwork::createNewConnections(){
     Layer *prevLayer;
     int sourceIndex    = 0;
     for(int layerIndex = 0; layerIndex < m_Net.size(); layerIndex++){

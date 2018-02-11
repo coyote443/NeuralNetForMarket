@@ -5,6 +5,8 @@
 #include "neuron.h"
 
 
+
+
 class NeuralNetwork
 {
 public:
@@ -12,7 +14,6 @@ public:
     virtual         ~NeuralNetwork(){qDebug() << "jestem w destruktorze Network";}
     virtual void    feedForward(const Signals &inSigs) = 0;
     virtual double  backPropagation(const Signals &learnVect) = 0;
-    virtual void    loadNetwork(QString local) = 0;
     virtual QString toQString(QString SEP = "[::]") = 0;
     virtual void    changeNetSpecification(const Specification &specify) = 0;
     Signals         getResults() const;
@@ -21,7 +22,7 @@ public:
 protected:
     Responses       takeOutput(const Layer &layer) const;
     virtual void    createLayers() = 0;
-    virtual void    createConnections() = 0;
+    virtual void    createNewConnections() = 0;
     Network         m_Net;
     Topology        m_Topology;
     Specification   m_Specifi;
@@ -41,18 +42,19 @@ protected:
 class LinearNetwork : public NeuralNetwork
 {
 public:
-            LinearNetwork(Topology &topol, Specification & specif);
+            LinearNetwork(Topology &topol, Specification &specif);
+            LinearNetwork(Topology &topol, Specification &specif, AllNetConn &netCon);
             ~LinearNetwork();
 
     void    feedForward(const Signals &inSigs);
     double  backPropagation(const Signals &targetVals);
-    void    loadNetwork(QString local);
     void    changeNetSpecification(const Specification &specify);
     QString toQString(QString SEP = "[::]");
 
 private:
     void    createLayers();
-    void    createConnections();
+    void    createNewConnections();
+    void    createGivenConnections(AllNetConn &netCon);
     void    calcAvarageError(const Signals &targetVals, const Layer &outputLayer);
     void    calcOutputLayGradients(const Signals &targetVals, Layer &outputLayer);
     void    calcHiddLayGradients();
@@ -68,7 +70,7 @@ public:
     ~RBFNetwork(){}
 private:
     void createLayers();
-    void createConnections();
+    void createNewConnections();
 };
 
 

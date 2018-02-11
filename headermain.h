@@ -17,4 +17,5 @@ typedef QPair<QString, Signals> LearnSig;
 typedef QVector<LearnSig> LearnVect;
 
 
+
 #endif // HEADERMAIN_H

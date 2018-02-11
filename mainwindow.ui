@@ -559,7 +559,7 @@
      </widget>
     </widget>
    </widget>
-   <widget class="QGroupBox" name="groupBox_2">
+   <widget class="QGroupBox" name="groupBoxTraining">
     <property name="geometry">
      <rect>
       <x>20</x>

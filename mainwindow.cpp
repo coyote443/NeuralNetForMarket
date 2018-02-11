@@ -44,13 +44,18 @@ void MainWindow::on_actionZapisz_Sie_triggered(){
     QFile file(fileName);
     file.open(QIODevice::WriteOnly | QIODevice::Truncate);
 
+
+    QStringList toSend;
     QTextStream stream(&file);
 
     stream << m_Networks.size() << endl;
 
+
     for(NeuralNetwork * neuralNetwork : m_Networks){
-        stream << neuralNetwork->toQString("[::]");
+        toSend.push_back(neuralNetwork->toQString("[::]"));
     }
+
+    stream << toSend.join("\n");
     file.close();
 }
 
@@ -61,44 +66,73 @@ void MainWindow::on_actionWczytaj_Sie_triggered(){
     QString fileName = QFileDialog::getOpenFileName(this, "Wczytaj sieć/sieci", "", tr("ANN (*.ann);;All Files (*)"));
     QFile inputFile(fileName);
     if (inputFile.open(QIODevice::ReadOnly)){
+        deleteAndClearNetworks();
+
         QString SEP = "[::]";
         QTextStream in(&inputFile);
 
-        deleteAndClearNetworks();
-        int networksToGnerate = in.readLine().toInt();
+        int networksToGenerate = in.readLine().toInt();
         QStringList netChar  = in.readLine().split(SEP);
         setNetSpecify(netChar);
         createSpecifViaForm();      // czy to nie będzie przeszkadzało przy uczeniu?
 
         QStringList topology = in.readLine().split(SEP);
-        setNetTopology(topology);
+        setNetTopologyForm(topology);
         createTopologyViaForm();
 
+        QVector<AllNetConn> allConnections;
+        int neuronNum = 0;
+        for(unsigned size : m_Topology)
+            neuronNum += size;
+        neuronNum += m_Topology.size() - 1; // add bias neurons
 
+        /// Load Network Connections
 
-        // po wczytaniu sieci powinna być mozliwość zmiany jej parametrów. Nie możemy zmieniać ilości warstw ukrytych
-        // ponadto po wygenerowaniu nowej sieci, ma być usuwana z pamięci stara, zaś okno parametrów zerowane do stanu bazowego
-        // po wczytaniu sieci też ma być wszystko usuwane
+        while(!in.atEnd()){
 
-        while (!in.atEnd()){
-            for(int netNr = 0; netNr < networksToGnerate; netNr++){
-                LinearNetwork * tmpNet = new LinearNetwork(m_Topology, m_Specifi);
-                m_Networks.push_back(tmpNet);
-                for(int size : m_Topology){
-                    QStringList neuronConnAndWeights = in.readLine().split(SEP);
-                    // dodaj funkcje change connections vals i każdemu neuronowi wysyłaj vektor odpowiedni.
+            AllNetConn networkConnections;
+            networkConnections.clear();
 
+            for(int takenN = 0; takenN < neuronNum; takenN++){
+                QStringList neuronConsStr = in.readLine().split(SEP);
 
+                QVector<int>    neuronConIndexes;
+                QVector<double> neuronWeights;
 
+                for(int pos = 0; pos < neuronConsStr.size(); pos++){
+                    if(pos % 2){
+                        double weight = neuronConsStr[pos].toDouble();
+                        neuronWeights.push_back(weight);
+                    }
+                    else{
+                        int index = neuronConsStr[pos].toInt();
+                        neuronConIndexes.push_back(index);
+                    }
                 }
+                networkConnections.push_back({neuronConIndexes, neuronWeights});
             }
+            allConnections.push_back(networkConnections);
 
-
+            //skip next networks topology and characteristic
+            in.readLine();
+            in.readLine();
         }
+
+        for(int netNr = 0; netNr < networksToGenerate; netNr++){
+            LinearNetwork * tmpNet = new LinearNetwork(m_Topology, m_Specifi, allConnections[netNr]);
+            m_Networks.push_back(tmpNet);
+        }
+
         inputFile.close();
         ui->groupBoxAllNetsControls->setEnabled(true);
         ui->groupBoxTopology->setEnabled(false);
     }
+
+    m_Networks.size() >  1 ? ui->radioButtonNetworkForEachClass->setChecked(true) :
+                             ui->radioButtonNetworkForEachClass->setChecked(false);
+    m_Networks.size() == 1 ? m_TeachingSplitType = OneNetwork :
+                             m_TeachingSplitType = ManyNetworks;
+
 }
 
 void MainWindow::on_actionNowa_Sie_triggered(){
@@ -125,6 +159,7 @@ void MainWindow::setClassesNamesInGui(const QStringList &classes){
 void MainWindow::setInOutSizesInGui(const QStringList &topology){
     ui->spinBoxInputLayerSize->setValue( topology[0].toInt() );
     m_NumOfClasses = topology[1].toInt();
+    qDebug() << m_TeachingSplitType;
     if(m_TeachingSplitType == OneNetwork)
         ui->spinBoxOutputLayerSize->setValue(m_NumOfClasses);
 }
@@ -170,6 +205,8 @@ void MainWindow::on_pushButtonLoadDataset_clicked(){
         inputFile.close();
     }
     ui->pushButtonGenerateNetwork->setEnabled(true);
+    if(m_Networks.size() > 0)
+        ui->groupBoxButtonsStartAndTest->setEnabled(true);
 }
 
 void MainWindow::on_pushButtonGenerateNetwork_clicked(){
@@ -243,7 +280,7 @@ void MainWindow::createTopologyViaForm(){
     m_Topology.push_back(ui->spinBoxOutputLayerSize->value());
 }
 
-void MainWindow::setNetTopology(QStringList &topology){
+void MainWindow::setNetTopologyForm(QStringList &topology){
     /// If bias is added, we should remove one neuron from input, and from each hidd layer
     /// Those bias neuron will be created during network creating process
     int bias = 0;
