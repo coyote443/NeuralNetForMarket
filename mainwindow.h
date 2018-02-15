@@ -31,7 +31,6 @@ private slots:
     void setEpochProgress();
     void setLrndProgress();
 
-
 private:
     void createSpecifViaForm();
     void createTopologyViaForm();

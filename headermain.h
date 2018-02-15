@@ -16,6 +16,7 @@ enum splitType  {OneNetwork = 0, ManyNetworks = 1};
 typedef QPair<QString, Signals> LearnSig;
 typedef QVector<LearnSig> LearnVect;
 
-
+typedef QPair<double, LinearNetwork *> NetAndFit;
+typedef QVector<NetAndFit> Population;
 
 #endif // HEADERMAIN_H

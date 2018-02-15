@@ -18,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->groupBoxAllNetsControls->setEnabled(false);
     ui->groupBoxButtonsStartAndTest->setEnabled(false);
     ui->groupBoxWayOfNetConstruct->setEnabled(false);
+    ui->groupBoxLearningMethod->setEnabled(false);
+    ui->groupBoxLearn->setEnabled(false);
 }
 
 MainWindow::~MainWindow(){
@@ -37,22 +39,21 @@ void MainWindow::on_actionZapisz_Sie_triggered(){
     /// << topol..1 << SEP << topol..n << endl
     /// << index..1 << SEP << weight..1 << SEP << index..n << SEP << weight..n << endl
 
-    if(m_Networks.empty())
-        return;
+    if(m_Networks.empty()) return;
 
     QString fileName = QFileDialog::getSaveFileName(this, "Zapisz Sieć / Sieci","", tr("ANN (*.ann);;All Files (*)"));
     QFile file(fileName);
     file.open(QIODevice::WriteOnly | QIODevice::Truncate);
 
-
+    QString SEP("[::]");
     QStringList toSend;
     QTextStream stream(&file);
 
+    stream << ui->progressBarError->value() << SEP << ui->progressBarNetworkTrained->value() << endl;
     stream << m_Networks.size() << endl;
 
-
     for(NeuralNetwork * neuralNetwork : m_Networks){
-        toSend.push_back(neuralNetwork->toQString("[::]"));
+        toSend.push_back(neuralNetwork->toQString(SEP));
     }
 
     stream << toSend.join("\n");
@@ -71,8 +72,12 @@ void MainWindow::on_actionWczytaj_Sie_triggered(){
         QString SEP = "[::]";
         QTextStream in(&inputFile);
 
-        int networksToGenerate = in.readLine().toInt();
-        QStringList netChar  = in.readLine().split(SEP);
+        QStringList progBars    = in.readLine().split(SEP);
+        ui->progressBarError->setValue(progBars[0].toInt());
+        ui->progressBarNetworkTrained->setValue(progBars[1].toInt());
+
+        int networksToGenerate  = in.readLine().toInt();
+        QStringList netChar     = in.readLine().split(SEP);
         setNetSpecify(netChar);
         createSpecifViaForm();      // czy to nie będzie przeszkadzało przy uczeniu?
 
@@ -126,6 +131,7 @@ void MainWindow::on_actionWczytaj_Sie_triggered(){
         inputFile.close();
         ui->groupBoxAllNetsControls->setEnabled(true);
         ui->groupBoxTopology->setEnabled(false);
+        ui->groupBoxLearn->setEnabled(true);
     }
 
     m_Networks.size() >  1 ? ui->radioButtonNetworkForEachClass->setChecked(true) :
@@ -147,6 +153,7 @@ void MainWindow::on_pushButtonApplyConstruct_clicked(){
     ui->radioButtonOneNetworkForAllClases->isChecked() ? m_TeachingSplitType = ONE_NET : m_TeachingSplitType = NET_PER_SIG;
     ui->groupBoxWayOfNetConstruct->setEnabled(false);
     ui->groupBoxAllNetsControls->setEnabled(true);
+    ui->groupBoxLearn->setEnabled(true);
 }
 
 void MainWindow::setClassesNamesInGui(const QStringList &classes){
@@ -207,6 +214,7 @@ void MainWindow::on_pushButtonLoadDataset_clicked(){
     ui->pushButtonGenerateNetwork->setEnabled(true);
     if(m_Networks.size() > 0)
         ui->groupBoxButtonsStartAndTest->setEnabled(true);
+    ui->groupBoxLearningMethod->setEnabled(true);
 }
 
 void MainWindow::on_pushButtonGenerateNetwork_clicked(){
@@ -233,7 +241,11 @@ void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
         net->changeNetSpecification(m_Specifi);
     }
 
-    m_Teacher->teachThoseNetworks(m_Networks, m_LearnVect, m_LearnClasses, m_MinError, *m_ProgBar);
+    if(ui->radioButtonFeedForward->isChecked())
+        m_Teacher->teachThoseNetworksFF(m_Networks, m_LearnVect, m_LearnClasses, m_MinError, *m_ProgBar);
+    else
+        m_Teacher->teachThoseNetworksGen(m_Networks, m_LearnVect, m_LearnClasses, m_MinError, *m_ProgBar, m_Topology, m_Specifi);
+
     ui->progressBarNetworkTrained->setValue(100);
 }
 

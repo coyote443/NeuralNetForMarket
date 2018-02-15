@@ -49,14 +49,14 @@ public:
     void    feedForward(const Signals &inSigs);
     double  backPropagation(const Signals &targetVals);
     void    changeNetSpecification(const Specification &specify);
+    double  calcAvarageError(const Signals &targetVals);
     QString toQString(QString SEP = "[::]");
 
 private:
     void    createLayers();
     void    createNewConnections();
     void    createGivenConnections(AllNetConn &netCon);
-    void    calcAvarageError(const Signals &targetVals, const Layer &outputLayer);
-    void    calcOutputLayGradients(const Signals &targetVals, Layer &outputLayer);
+    void    calcOutputLayGradients(const Signals &targetVals);
     void    calcHiddLayGradients();
     void    updateWeights();
 };

@@ -105,8 +105,7 @@ void LinearNetwork::feedForward(const Signals &inSigs){
 }
 
 double LinearNetwork::backPropagation(const Signals &targetVals){
-    Layer &outputLayer = m_Net.back();
-    calcAvarageError(targetVals, outputLayer);
+    calcAvarageError(targetVals);
 
     // Czasem sqErr = 0; pomijam te wyniki z zerem; usredniam Err zgodnie ze wsp. BLUR
     static int sqErrCounter = BLUR_FACT;
@@ -120,7 +119,7 @@ double LinearNetwork::backPropagation(const Signals &targetVals){
             m_RecentAvarageErr  = 0;
         }
     }
-    calcOutputLayGradients(targetVals, outputLayer);
+    calcOutputLayGradients(targetVals);
     calcHiddLayGradients();
     updateWeights();
     return m_Corectness;
@@ -248,13 +247,15 @@ void LinearNetwork::calcHiddLayGradients(){
     }
 }
 
-void LinearNetwork::calcOutputLayGradients(const Signals &targetVals, Layer &outputLayer){
+void LinearNetwork::calcOutputLayGradients(const Signals &targetVals){
+    Layer &outputLayer = m_Net.back();
     for(int n = 0; n < outputLayer.size(); n++){
         outputLayer[n]->calcOutputGradients(targetVals[n]);
     }
 }
 
-void LinearNetwork::calcAvarageError(const Signals &targetVals, const Layer &outputLayer){
+double LinearNetwork::calcAvarageError(const Signals &targetVals){
+    const Layer &outputLayer = m_Net.back();
     m_Error = 0.0;
     for(int n = 0; n < outputLayer.size(); n++){
         double delta = targetVals[n] - outputLayer[n]->getOutputVal();
@@ -262,6 +263,7 @@ void LinearNetwork::calcAvarageError(const Signals &targetVals, const Layer &out
     }
     m_Error /= outputLayer.size();
     m_Error = std::sqrt(m_Error);
+    return m_Error;
 }
 
 
