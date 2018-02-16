@@ -15,23 +15,26 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_ProgBar = ui->progressBarError;
 
-    ui->groupBoxAllNetsControls->setEnabled(false);
-    ui->groupBoxButtonsStartAndTest->setEnabled(false);
-    ui->groupBoxWayOfNetConstruct->setEnabled(false);
-    ui->groupBoxLearningMethod->setEnabled(false);
-    ui->groupBoxLearn->setEnabled(false);
+    ui->groupBoxAllNetsControls->setDisabled(true);
+    ui->groupBoxButtonsStartAndTest->setDisabled(true);
+    ui->groupBoxWayOfNetConstruct->setDisabled(true);
+    ui->groupBoxLearningMethod->setDisabled(true);
+    ui->groupBoxLearn->setDisabled(true);
 }
+
 
 MainWindow::~MainWindow(){
     deleteAndClearNetworks();
     delete ui;
 }
 
+
 void MainWindow::deleteAndClearNetworks(){
     for(LinearNetwork *  neur : m_Networks )
         delete neur;
     m_Networks.clear();
 }
+
 
 void MainWindow::on_actionZapisz_Sie_triggered(){
     /// numberOfNetworks << endl
@@ -59,8 +62,6 @@ void MainWindow::on_actionZapisz_Sie_triggered(){
     stream << toSend.join("\n");
     file.close();
 }
-
-
 
 
 void MainWindow::on_actionWczytaj_Sie_triggered(){
@@ -130,7 +131,7 @@ void MainWindow::on_actionWczytaj_Sie_triggered(){
 
         inputFile.close();
         ui->groupBoxAllNetsControls->setEnabled(true);
-        ui->groupBoxTopology->setEnabled(false);
+        ui->groupBoxTopology->setDisabled(true);
         ui->groupBoxLearn->setEnabled(true);
     }
 
@@ -138,23 +139,25 @@ void MainWindow::on_actionWczytaj_Sie_triggered(){
                              ui->radioButtonNetworkForEachClass->setChecked(false);
     m_Networks.size() == 1 ? m_TeachingSplitType = OneNetwork :
                              m_TeachingSplitType = ManyNetworks;
-
 }
+
 
 void MainWindow::on_actionNowa_Sie_triggered(){
     deleteAndClearNetworks();
-    ui->groupBoxAllNetsControls->setEnabled(false);
-    ui->groupBoxButtonsStartAndTest->setEnabled(false);
+    ui->groupBoxAllNetsControls->setDisabled(true);
+    ui->groupBoxButtonsStartAndTest->setDisabled(true);
     ui->groupBoxWayOfNetConstruct->setEnabled(true);
 }
+
 
 void MainWindow::on_pushButtonApplyConstruct_clicked(){
     ui->radioButtonNeuronSigmoid->isChecked() ? m_NeuronType = SIGMOID : m_NeuronType = RBF;
     ui->radioButtonOneNetworkForAllClases->isChecked() ? m_TeachingSplitType = ONE_NET : m_TeachingSplitType = NET_PER_SIG;
-    ui->groupBoxWayOfNetConstruct->setEnabled(false);
+    ui->groupBoxWayOfNetConstruct->setDisabled(true);
     ui->groupBoxAllNetsControls->setEnabled(true);
     ui->groupBoxLearn->setEnabled(true);
 }
+
 
 void MainWindow::setClassesNamesInGui(const QStringList &classes){
     QString lernCls;
@@ -163,6 +166,7 @@ void MainWindow::setClassesNamesInGui(const QStringList &classes){
     ui->textBrowserSignalClasses->setText(lernCls);
 }
 
+
 void MainWindow::setInOutSizesInGui(const QStringList &topology){
     ui->spinBoxInputLayerSize->setValue( topology[0].toInt() );
     m_NumOfClasses = topology[1].toInt();
@@ -170,6 +174,7 @@ void MainWindow::setInOutSizesInGui(const QStringList &topology){
     if(m_TeachingSplitType == OneNetwork)
         ui->spinBoxOutputLayerSize->setValue(m_NumOfClasses);
 }
+
 
 void MainWindow::makeClassNamesMap(QStringList classes){
     for(int pos = 0; pos < classes.size(); pos++)
@@ -217,6 +222,7 @@ void MainWindow::on_pushButtonLoadDataset_clicked(){
     ui->groupBoxLearningMethod->setEnabled(true);
 }
 
+
 void MainWindow::on_pushButtonGenerateNetwork_clicked(){
     resetAllProgAndStatus();
     createSpecifViaForm();
@@ -233,6 +239,18 @@ void MainWindow::on_pushButtonGenerateNetwork_clicked(){
     QMessageBox::information(this, "Powodzenie", "Proces generowania zakończony powodzeniem");
     ui->groupBoxButtonsStartAndTest->setEnabled(true);
 }
+
+
+void MainWindow::on_radioButtonFeedForward_clicked(){
+    ui->spinBoxBLURR->setEnabled(true);
+}
+
+
+void MainWindow::on_radioButtonGeneticAlg_clicked(){
+    ui->spinBoxBLURR->setDisabled(true);
+    ui->spinBoxBLURR->setValue(m_LearnVect.size());
+}
+
 
 void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
     resetAllProgAndStatus();
@@ -271,6 +289,7 @@ void MainWindow::createSpecifViaForm(){
     m_MinError = ui->doubleSpinBoxMIN_ERR->value();
 }
 
+
 void MainWindow::setNetSpecify(QStringList &NetChar){
     ui->doubleSpinBoxBETA->setValue(NetChar[0].toDouble());
     ui->doubleSpinBoxETA->setValue(NetChar[1].toDouble());
@@ -278,6 +297,7 @@ void MainWindow::setNetSpecify(QStringList &NetChar){
     ui->spinBoxBLURR->setValue(NetChar[3].toDouble());
     ui->checkBoxBIAS->setChecked(NetChar[4].toInt());
 }
+
 
 // dodaj regex validator dla lineEdit
 void MainWindow::createTopologyViaForm(){
@@ -291,6 +311,7 @@ void MainWindow::createTopologyViaForm(){
 
     m_Topology.push_back(ui->spinBoxOutputLayerSize->value());
 }
+
 
 void MainWindow::setNetTopologyForm(QStringList &topology){
     /// If bias is added, we should remove one neuron from input, and from each hidd layer
@@ -310,6 +331,7 @@ void MainWindow::setNetTopologyForm(QStringList &topology){
     ui->lineEditNumOfHiddLays->setText(Vals.join(" "));
 }
 
+
 ///     END TOPOLOGY AND NET SPECIFICATION FORMS
 
 
@@ -323,10 +345,12 @@ void MainWindow::resetAllProgAndStatus(){
     resetErrProgress();
 }
 
+
 void MainWindow::resetEpochOnStatusBar(){
     ui->statusBar->showMessage("");
     m_EpochCounter = 1;
 }
+
 
 void MainWindow::setEpochOnStatusBar(){
     m_EpochCounter++;
@@ -335,25 +359,30 @@ void MainWindow::setEpochOnStatusBar(){
     resetEpochProgress();
 }
 
+
 void MainWindow::resetErrProgress(){
     ui->progressBarError->setValue(0);
 }
+
 
 void MainWindow::resetEpochProgress(){
     m_EpochProgress = 0;
     ui->progressBarEpoch->setValue(m_EpochProgress);
 }
 
+
 void MainWindow::setEpochProgress(){
     m_EpochProgress++;
     ui->progressBarEpoch->setValue(m_EpochProgress);
 }
+
 
 void MainWindow::resetLrndProgress(){
     m_LrndCounter      = 0;
     m_LrndNetsProgress = 0;
     ui->progressBarNetworkTrained->setValue(m_LrndNetsProgress);
 }
+
 
 void MainWindow::setLrndProgress(){
     m_LrndCounter++;

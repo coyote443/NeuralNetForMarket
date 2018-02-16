@@ -49,8 +49,8 @@ public:
     void    feedForward(const Signals &inSigs);
     double  backPropagation(const Signals &targetVals);
     void    changeNetSpecification(const Specification &specify);
-    double  calcAvarageError(const Signals &targetVals);
     QString toQString(QString SEP = "[::]");
+    double  backPropagationOnlyError(const Signals &targetVals);
 
 private:
     void    createLayers();
@@ -59,6 +59,8 @@ private:
     void    calcOutputLayGradients(const Signals &targetVals);
     void    calcHiddLayGradients();
     void    updateWeights();
+    void    makeAvarageError();
+    double  calcAvarageError(const Signals &targetVals);
 };
 
 

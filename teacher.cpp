@@ -82,12 +82,10 @@ void Teacher::teachThoseNetworksFF(QVector<LinearNetwork *> &nets, const LearnVe
 void Teacher::calculateAvarageErrorAlGen(Population &population, int netSize, const LearnVect &AllSignals, const QMap<QString,
                                          int> sigClasses, int netNr){
     for(NetAndFit &netandfit : population){
-        int     divider     = AllSignals.size();
-        double  errorRate   = 0;
-        qDebug() << "simple;";
-
         int howMany = (netSize > 1 ? 1 : sigClasses.size());
         Signals targetVals(howMany);
+
+        qDebug() << AllSignals.size();
 
         LinearNetwork * takenNetwork = netandfit.second;
         double & networkAvaErr       = netandfit.first;
@@ -114,10 +112,10 @@ void Teacher::calculateAvarageErrorAlGen(Population &population, int netSize, co
             takenNetwork->feedForward(givenSignal);
 
             /// Error sum, and divider optimization
-            int error = takenNetwork->calcAvarageError(targetVals);
-            error != 0 ? errorRate += error : divider -= 1;
+
+            networkAvaErr = takenNetwork->backPropagationOnlyError(targetVals);
         }
-        networkAvaErr = errorRate / divider;
+        qDebug() << networkAvaErr;
     }
 }
 
@@ -139,10 +137,8 @@ void Teacher::teachOneNetworkGen(LinearNetwork &net, int netNr, int netSize, con
 
     // Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony Error dla każdej sieci.
     calculateAvarageErrorAlGen(population, netSize, AllSignals, sigClasses, netNr);
-    qDebug() << "simple.first;";
 
     qSort(population.begin(), population.end());
-    qDebug() << "simple;";
     for(NetAndFit simple : population)
         qDebug() << simple.first;
 

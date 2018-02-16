@@ -30,6 +30,8 @@ private slots:
     void setEpochOnStatusBar();
     void setEpochProgress();
     void setLrndProgress();
+    void on_radioButtonFeedForward_clicked();
+    void on_radioButtonGeneticAlg_clicked();
 
 private:
     void createSpecifViaForm();

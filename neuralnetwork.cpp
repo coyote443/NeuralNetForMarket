@@ -104,9 +104,7 @@ void LinearNetwork::feedForward(const Signals &inSigs){
     }
 }
 
-double LinearNetwork::backPropagation(const Signals &targetVals){
-    calcAvarageError(targetVals);
-
+void LinearNetwork::makeAvarageError(){
     // Czasem sqErr = 0; pomijam te wyniki z zerem; usredniam Err zgodnie ze wsp. BLUR
     static int sqErrCounter = BLUR_FACT;
     if(m_Error != 0){
@@ -119,6 +117,17 @@ double LinearNetwork::backPropagation(const Signals &targetVals){
             m_RecentAvarageErr  = 0;
         }
     }
+}
+
+double LinearNetwork::backPropagationOnlyError(const Signals &targetVals){
+    calcAvarageError(targetVals);
+    makeAvarageError();
+    return m_Corectness;
+}
+
+double LinearNetwork::backPropagation(const Signals &targetVals){
+    calcAvarageError(targetVals);
+    makeAvarageError();
     calcOutputLayGradients(targetVals);
     calcHiddLayGradients();
     updateWeights();
@@ -263,7 +272,7 @@ double LinearNetwork::calcAvarageError(const Signals &targetVals){
     }
     m_Error /= outputLayer.size();
     m_Error = std::sqrt(m_Error);
-    return m_Error;
+    return (double)m_Error;
 }
 
 
