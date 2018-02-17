@@ -146,6 +146,7 @@ void MainWindow::on_actionNowa_Sie_triggered(){
     deleteAndClearNetworks();
     ui->groupBoxAllNetsControls->setDisabled(true);
     ui->groupBoxButtonsStartAndTest->setDisabled(true);
+    ui->groupBoxLearn->setDisabled(true);
     ui->groupBoxWayOfNetConstruct->setEnabled(true);
 }
 

@@ -1,12 +1,11 @@
 #include "teacher.h"
-
 #include <algorithm>
 
 Teacher::Teacher(QObject *parent): QObject(parent){
     qsrand(QTime::currentTime().msec());
 }
 
-void Teacher::teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig, const QMap<QString, int> sigClasses,
+void Teacher::teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig, SigClasses sigClasses,
                               QProgressBar &progBar, double targetError){
     int howMany = (netSize > 1 ? 1 : sigClasses.size());
     Signals targetVals(howMany);
@@ -63,7 +62,7 @@ void Teacher::teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, con
     }while(currentError > targetError);
 }
 
-void Teacher::teachThoseNetworksFF(QVector<LinearNetwork *> &nets, const LearnVect &sig, const QMap<QString, int> sigClasses,
+void Teacher::teachThoseNetworksFF(AllNets &nets, const LearnVect &sig, SigClasses sigClasses,
                                   double targetError, QProgressBar &progBarEpoch){
     if(nets.size() == 1){
         teachOneNetworkFF(*nets.first(), 0, 1, sig, sigClasses, progBarEpoch, targetError);
@@ -79,16 +78,14 @@ void Teacher::teachThoseNetworksFF(QVector<LinearNetwork *> &nets, const LearnVe
 }
 
 
-void Teacher::calculateAvarageErrorAlGen(Population &population, int netSize, const LearnVect &AllSignals, const QMap<QString,
+void Teacher::calculateAvarageError(Population &population, int netSize, const LearnVect &AllSignals, const QMap<QString,
                                          int> sigClasses, int netNr){
-    for(NetAndFit &netandfit : population){
+    for(NetAndCharacter &netandfit : population){
         int howMany = (netSize > 1 ? 1 : sigClasses.size());
         Signals targetVals(howMany);
 
-        qDebug() << AllSignals.size();
-
-        LinearNetwork * takenNetwork = netandfit.second;
-        double & networkAvaErr       = netandfit.first;
+        LinearNetwork * takenNetwork = netandfit.network;
+        double & networkAvaErr       = netandfit.errorRate;
 
         for(LearnSig learnSig : AllSignals){
             /// Make target vals Vector
@@ -119,40 +116,118 @@ void Teacher::calculateAvarageErrorAlGen(Population &population, int netSize, co
     }
 }
 
-void Teacher::teachOneNetworkGen(LinearNetwork &net, int netNr, int netSize, const LearnVect &AllSignals, const QMap<QString,
-                                 int> sigClasses, QProgressBar &progBar, double targetError, Topology &topol, Specification &specif){
-    // Net nr. - dla której z kolei sieci przeprowadzamy naukę. netSize - Ile łacznie sieci mamy do nauki
+void Teacher::killGivenPercOfPopulation(double SURVIVE_RATE, Population &population){
+    int toDelSize = population.size() - SURVIVE_RATE * population.size();
+    for(int toKill = 0; toKill < toDelSize; toKill++){
+        delete population.back().network;
+        population.pop_back();
+    }
+}
 
-    int POPULATION_SIZE = 24;
+void Teacher::makeBreedRate(Population &population){
+    double divider = 0;
+    for(NetAndCharacter &subject : population){
+        if(subject.errorRate >= 1.0){
+            subject.breeadingRate = 0;
+            continue;
+        }
+        subject.breeadingRate = (1.0 - subject.errorRate) * 100.0;
+        divider += subject.breeadingRate;
+    }
+
+    for(NetAndCharacter &subject : population){
+        subject.breeadingRate = subject.breeadingRate / divider;
+    }
+}
+
+NetAndCharacter &Teacher::findParent(Population &population){
+    double tmpFit = 0.0;
+    double val = qrand()%100 / 100.0,
+        pos = 0;
+
+
+    qDebug() << "val             " << val;
+    qDebug() << "population size " << population.size();
+
+    for(NetAndCharacter network : population){
+        tmpFit += network.breeadingRate;
+        if(val <= tmpFit){
+            qDebug() << "Pos             " << pos;
+            return population[pos];
+        }
+        pos++;
+    }
+}
+
+void Teacher::teachOneNetworkGen(LinearNetwork &net, int netNr, int netSize, const LearnVect &AllSignals, SigClasses sigClasses, QProgressBar &progBar, double targetError, Topology &topol, Specification &specif){
+    /// Net nr. - dla której z kolei sieci przeprowadzamy naukę. netSize - Ile łacznie sieci mamy do nauki. netSize wyznacza sposób
+    /// konstrukcji sygnału testowego dla sieci
+
+    int POPULATION_SIZE     = 10;
+    double SURVIVE_RATE     = 0.50;
+    double MUTATION_RATE    = 0.05;
 
     // Wygeneruj losową populację sieci dla zadanego problemu.
     Population population;
-    for(int indivd = 0; indivd < POPULATION_SIZE; indivd++){
+    for(int indivd = 0; indivd < POPULATION_SIZE - 1; indivd++){
         LinearNetwork * tmp = new LinearNetwork(topol, specif);
-        population.push_back({0, tmp});
+        population.push_back({0, 0, tmp});
     }
 
     // Włączamy otrzymaną sieć do populacji
-    population.push_back({0, &net});
+    population.push_back({0, 0, &net});
 
-    // Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony Error dla każdej sieci.
-    calculateAvarageErrorAlGen(population, netSize, AllSignals, sigClasses, netNr);
+    // Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony fitness(Error) dla każdej sieci.
+    calculateAvarageError(population, netSize, AllSignals, sigClasses, netNr);
 
-    qSort(population.begin(), population.end());
-    for(NetAndFit simple : population)
-        qDebug() << simple.first;
+    killGivenPercOfPopulation(SURVIVE_RATE, population);
+    makeBreedRate(population);
+    qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.breeadingRate > b.breeadingRate;});
+
+    qDebug() <<"Posortowany wedle breedRate ";
+    for(NetAndCharacter simple : population)
+        qDebug() << simple.breeadingRate;
+    qDebug() <<"WOLOLO ";
+
+    double currAvError = 1.0;
+    /// Zacznij ewoulcję
+    do{
+        /// Uśmiercam pewien % najgorzej przystosowanych
+        killGivenPercOfPopulation(SURVIVE_RATE, population);
+
+        /// Rozmnażanie - domnażamy tyle osobników ile powinno być w populacji
+        makeBreedRate(population);
+
+        /// Stwórz kolejną generację
+        Population Offspring;
+        for(int x = population.size(); x < POPULATION_SIZE; x++){
+            // Losuj 2 rodziców, prawdopodobieństwo wylosowania jest proporcjonalne do fitness
+            NetAndCharacter * parentOne = 0, * parentTwo = 0;
+            parentOne = &findParent(population);
+            do{
+                parentTwo = &findParent(population);
+            }while(parentOne == parentTwo);
+
+            // Zrób dwójke dzieci identyczną jak rodzice - przepisz wartości;
+            NetAndCharacter offspringOne(*parentOne), offspringTwo(*parentTwo);
+
+            //Tutaj jest pętla zamian
+            for(int zamianaNr = 0; zamianaNr < 100; zamianaNr++){
+                // 70% na zamianę wag pomiędzy dziećmi
+                    /// W każdej sieci nr tworzonego neuronu nie może odnosić się do wartości static,
+                    /// bo wtedy kazda sieć ma inną (kolejną) numeracje
 
 
+                // 29% na zamiane neuronów
+                // 1%  na zamianę warstw
+            }
 
-//    do{
-
-
-
-
-
-
-//        currentAvError = errorRate / divider;
-//    }while(currentAvError > targetError);
+        }
+        /// Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony fitness(Error) dla każdej sieci.
+        calculateAvarageError(population, netSize, AllSignals, sigClasses, netNr);
+        qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.errorRate < b.errorRate;});
+        currAvError = population.front().errorRate;
+    }while(currAvError > targetError);
 
 
 
@@ -184,12 +259,13 @@ void Teacher::teachOneNetworkGen(LinearNetwork &net, int netNr, int netSize, con
         //      zamień ze sobą wartości dwóch wag w neuronie                - 7%
 
 
+    // po okresie nauki, przekształcamy otrzymaną referencję do sieci tak, aby odpowiadała najlepszemu osobnikowi.
 
     ////
 
 }
 
-void Teacher::teachThoseNetworksGen(QVector<LinearNetwork *> &nets, const LearnVect &sig, const QMap<QString, int> sigClasses,
+void Teacher::teachThoseNetworksGen(AllNets &nets, const LearnVect &sig, SigClasses sigClasses,
                                     double targetError, QProgressBar &progBarEpoch, Topology &topol, Specification &specif){
     if(nets.size() == 1){
         teachOneNetworkGen(*nets.first(), 0, 1, sig, sigClasses, progBarEpoch, targetError, topol, specif);

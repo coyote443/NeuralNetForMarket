@@ -12,7 +12,7 @@ void Teacher(LinearNetwork &toTeach){
     qsrand(QTime::currentTime().msec());
 
     int val;
-    for(int x = 0; x < 10000; x++){
+    for(int x = 0; x < 1000; x++){
         val = rand()%4;
         toTeach.feedForward(sig[val]);
         qDebug() << toTeach.backPropagation(res[val]);
@@ -39,10 +39,12 @@ int main(int argc, char *argv[])
     Topology        topol = {2, 4, 1};
     Specification   spec = {beta, eta, alfa, blur, bias};
 
-    //LinearNetwork   nowaSiec(topol, spec);
+    LinearNetwork   nowaSiec(topol, spec);
 
-    //Teacher(nowaSiec);
-
+//    Teacher(nowaSiec);
+//    qDebug() << "wololo";
+//    LinearNetwork siec = nowaSiec;
+//    Teacher(siec);
 
     return a.exec();
 }
