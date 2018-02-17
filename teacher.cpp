@@ -159,7 +159,7 @@ NetAndCharacter &Teacher::findParent(Population &population){
     }
 }
 
-void Teacher::teachOneNetworkGen(LinearNetwork &net, int netNr, int netSize, const LearnVect &AllSignals, SigClasses sigClasses, QProgressBar &progBar, double targetError, Topology &topol, Specification &specif){
+void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netSize, const LearnVect &AllSignals, SigClasses sigClasses, QProgressBar &progBar, double targetError, Topology &topol, Specification &specif){
     /// Net nr. - dla której z kolei sieci przeprowadzamy naukę. netSize - Ile łacznie sieci mamy do nauki. netSize wyznacza sposób
     /// konstrukcji sygnału testowego dla sieci
 
@@ -175,7 +175,7 @@ void Teacher::teachOneNetworkGen(LinearNetwork &net, int netNr, int netSize, con
     }
 
     // Włączamy otrzymaną sieć do populacji
-    population.push_back({0, 0, &net});
+    population.push_back({0, 0, &receivedNet});
 
     // Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony fitness(Error) dla każdej sieci.
     calculateAvarageError(population, netSize, AllSignals, sigClasses, netNr);
@@ -229,21 +229,8 @@ void Teacher::teachOneNetworkGen(LinearNetwork &net, int netNr, int netSize, con
         currAvError = population.front().errorRate;
     }while(currAvError > targetError);
 
-
-
-
-    //  Pamiętaj o różnym sposobie konstrukcji sygnału.
-
-    // Wartość fitness będzie wyrażana poprzez uśredniony błąd
-
-
-
-    ////    while(fitness najlepszego >= wartość porządana - wartość błędu)
-    // Dla każdej sieci zrób ewaluację -  ustal fitness (określony przez wartość błędu dla materiału z jednej epoki [może 25% epoki?])
-
-    // Posortuj ich listę
-
-    // Uśmierć 25% najgorzej przystosowanych
+    /// Po okresie nauki, przekształcamy otrzymaną referencję do sieci tak, aby odpowiadała najlepszemu osobnikowi.
+    receivedNet = *population.front().network;
 
     // Rozmnażanie - Operatory krzyżowania
         //      Zamień pojedynczą wagę między neuronem nr x obu rodziców	- 89% szans
@@ -257,12 +244,6 @@ void Teacher::teachOneNetworkGen(LinearNetwork &net, int netNr, int netSize, con
         //      dodaj lub odejmij liczbę losową z zakresu 0 - 1 od wagi		- 39.5%
         //      zmień znak wagi                                             - 7%
         //      zamień ze sobą wartości dwóch wag w neuronie                - 7%
-
-
-    // po okresie nauki, przekształcamy otrzymaną referencję do sieci tak, aby odpowiadała najlepszemu osobnikowi.
-
-    ////
-
 }
 
 void Teacher::teachThoseNetworksGen(AllNets &nets, const LearnVect &sig, SigClasses sigClasses,
