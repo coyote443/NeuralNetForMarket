@@ -104,6 +104,35 @@ void LinearNetwork::feedForward(const Signals &inSigs){
     }
 }
 
+
+/// Każda z sieci ma taką samą konstrukcję, więc można zamienić nie tylko wagi, ale całą strukturę połączenia od razu
+/// Robię to na poziomie neuronów, bo Layer to wektor wskaźników
+void LinearNetwork::swapLayer(Layer &layer, unsigned layerNum){
+    Layer & myLayer = m_Net[layerNum];
+    if(myLayer.size() == layer.size()){
+        for(int pos = 0; pos < myLayer.size(); pos++)
+            *myLayer[pos] = *layer[pos];
+    }
+}
+
+void LinearNetwork::swapNeuron(Neuron &neuron, unsigned layerNum, unsigned neuronNum){
+    Layer &myLayer      = m_Net[layerNum];
+    Neuron &myNeuron    = *myLayer[neuronNum];
+    if(neuronNum < myLayer.size())
+        myNeuron = neuron;
+}
+
+void LinearNetwork::swapConn(Connection &conn, unsigned layerNum, unsigned neuronNum, unsigned connNum){
+    Layer &myLayer      = m_Net[layerNum];
+    Neuron &myNeuron    = *myLayer[neuronNum];
+    myNeuron.swapWeight(conn, connNum);
+}
+
+
+
+
+
+
 void LinearNetwork::makeAvarageError(){
     // Czasem sqErr = 0; pomijam te wyniki z zerem; usredniam Err zgodnie ze wsp. BLUR
     static int sqErrCounter = BLUR_FACT;
@@ -182,6 +211,7 @@ void LinearNetwork::createLayers(){
         for(int x = 0; x < m_Topology.size() - 1; x++)      // w ostatniej warstwie nie trzeba neuronu od biasu
             m_Topology[x]++;
 
+    int neuronNum = 0;
     for(int layerIndex = 0; layerIndex < m_Topology.size(); layerIndex++){
         Layer tmpLayer;
         int givenLaySize  = m_Topology[layerIndex];
@@ -189,16 +219,17 @@ void LinearNetwork::createLayers(){
             lastLayN = givenLaySize - 1;
 
         for(int takenNeuron = 0; takenNeuron < givenLaySize; takenNeuron++){
+            neuronNum++;
             if(layerIndex == 0 && takenNeuron != lastLayN){
-                LinInputNeuron * LinNeu = new LinInputNeuron;
+                LinInputNeuron * LinNeu = new LinInputNeuron(neuronNum);
                 tmpLayer.push_back(LinNeu);
             }
             else if(takenNeuron == lastLayN && BIAS_VAL == 1 && layerIndex != lastLayIndx){
-                LinBiasNeuron * LinBias = new LinBiasNeuron;
+                LinBiasNeuron * LinBias = new LinBiasNeuron(neuronNum);
                 tmpLayer.push_front(LinBias);
             }
             else{
-                LinearNeuron * LinNeu = new LinearNeuron;
+                LinearNeuron * LinNeu = new LinearNeuron(neuronNum);
                 tmpLayer.push_back(LinNeu);
             }
         }

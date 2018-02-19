@@ -1,14 +1,12 @@
 #include "neuron.h"
 
-Neuron::Neuron(){
+Neuron::Neuron(int neuronNum){
     qsrand(QTime::currentTime().msec());
-    createdNeurons++;
-    m_Index = createdNeurons;
+    m_Index = neuronNum;
 }
 
 Neuron::~Neuron(){}
 
-int     Neuron::createdNeurons  = 0;
 double  Neuron::ALPHA           = 0;
 double  Neuron::ETA             = 0;
 
@@ -19,6 +17,11 @@ QString Neuron::toQString(QString SEP){
         tmpLst.push_back( QString("%1%2%3").arg(con.m_NeuronIndex).arg(SEP).arg(con.m_Weight) );
     }
     return tmpLst.join(SEP);
+}
+
+void Neuron::swapWeight(Connection &conn, unsigned connNum){
+    if(m_Connections.size() > connNum)
+        m_Connections[connNum].m_Weight = conn.m_Weight;
 }
 
 

@@ -211,17 +211,42 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
             // Zrób dwójke dzieci identyczną jak rodzice - przepisz wartości;
             NetAndCharacter offspringOne(*parentOne), offspringTwo(*parentTwo);
 
-            //Tutaj jest pętla zamian
+            // Tutaj jest pętla zamian
             for(int zamianaNr = 0; zamianaNr < 100; zamianaNr++){
-                // 70% na zamianę wag pomiędzy dziećmi
-                    /// W każdej sieci nr tworzonego neuronu nie może odnosić się do wartości static,
-                    /// bo wtedy kazda sieć ma inną (kolejną) numeracje
+                int randNum = qrand()%100;
 
+                int randLayer = qrand()%(parentOne->network->size() - 1) + 1;
 
-                // 29% na zamiane neuronów
+                Layer & parentOneLayer = parentOne->network->m_Net[randLayer];
+                Layer & parentTwoLayer = parentTwo->network->m_Net[randLayer];
+
+                int randNeuron = qrand()%parentOneLayer.size();
+
+                Neuron & parentOneNeuron = *parentOneLayer[randNeuron];
+                Neuron & parentTwoNeuron = *parentTwoLayer[randNeuron];
+
+                Connections & parentOneConns = parentOneNeuron.getConnections();
+                Connections & parentTwoConns = parentTwoNeuron.getConnections();
+
+                int randConn = qrand()%parentOneConns.size();
+
                 // 1%  na zamianę warstw
-            }
+                if(randNum == 0){
+                    offspringOne.network->swapLayer(parentTwoLayer, randLayer);
+                    offspringTwo.network->swapLayer(parentOneLayer, randLayer);
+                }
+                // 29% na zamiane neuronów
+                else if(randNum < 30){
+                    offspringOne.network->swapNeuron(parentTwoNeuron, randLayer, randNeuron);
+                    offspringTwo.network->swapNeuron(parentOneNeuron, randLayer, randNeuron);
+                }
+                // 70% na zamianę wag pomiędzy dziećmi
+                else if(randNum < 100){
+                    offspringOne.network->swapConn(parentTwoConns[randConn], randLayer, randNeuron, randConn);
+                    offspringTwo.network->swapConn(parentOneConns[randConn], randLayer, randNeuron, randConn);
 
+                }
+            }
         }
         /// Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony fitness(Error) dla każdej sieci.
         calculateAvarageError(population, netSize, AllSignals, sigClasses, netNr);

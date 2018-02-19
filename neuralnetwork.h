@@ -4,11 +4,11 @@
 #include "header.h"
 #include "neuron.h"
 
-
-
+class Teacher;
 
 class NeuralNetwork
 {
+    friend class Teacher;
 public:
                     NeuralNetwork(const Topology &topology, const Specification &specify);
     virtual         ~NeuralNetwork(){}
@@ -16,6 +16,7 @@ public:
     virtual double  backPropagation(const Signals &learnVect) = 0;
     virtual QString toQString(QString SEP = "[::]") = 0;
     virtual void    changeNetSpecification(const Specification &specify) = 0;
+    int             size(){return m_Net.size();}
     Signals         getResults() const;
     void            drawMe() const;
 
@@ -51,6 +52,9 @@ public:
     void    changeNetSpecification(const Specification &specify);
     QString toQString(QString SEP = "[::]");
     double  backPropagationOnlyError(const Signals &targetVals);
+    void    swapLayer(Layer &layer, unsigned layerNum);
+    void    swapNeuron(Neuron &neuron, unsigned layerNum, unsigned neuronNum);
+    void    swapConn(Connection &conn, unsigned layerNum, unsigned neuronNum, unsigned connNum);
 
 private:
     void    createLayers();

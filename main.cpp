@@ -40,9 +40,14 @@ int main(int argc, char *argv[])
     Specification   spec = {beta, eta, alfa, blur, bias};
 
     LinearNetwork   nowaSiec(topol, spec);
+    qsrand(QTime::currentTime().msec());
+    qDebug() << qrand()%2 + 1;
+    qDebug() << qrand()%2 + 1;
+    qDebug() << qrand()%2 + 1;
+    qDebug() << qrand()%2 + 1;
 
 //    Teacher(nowaSiec);
-//    qDebug() << "wololo";
+    qDebug() << "wololo";
 //    LinearNetwork siec = nowaSiec;
 //    Teacher(siec);
 
