@@ -10,6 +10,7 @@ class NeuralNetwork
 {
     friend class Teacher;
 public:
+    NeuralNetwork & operator=(const NeuralNetwork & neuralNet);
                     NeuralNetwork(const Topology &topology, const Specification &specify);
     virtual         ~NeuralNetwork(){}
     virtual void    feedForward(const Signals &inSigs) = 0;
@@ -46,6 +47,7 @@ public:
             LinearNetwork(Topology &topol, Specification &specif);
             LinearNetwork(Topology &topol, Specification &specif, AllNetConn &netCon);
             ~LinearNetwork();
+            LinearNetwork & operator=(const LinearNetwork & neuralNet);
 
     void    feedForward(const Signals &inSigs);
     double  backPropagation(const Signals &targetVals);

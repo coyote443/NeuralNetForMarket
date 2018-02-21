@@ -33,6 +33,7 @@ public:
 
     void            swapWeight(Connection & conn, unsigned connNum);
     Connections &   getConnections(){return m_Connections;}
+
     void            setOutputVal(double val){m_Output = val;}
     double          getOutputVal()const {return m_Output;}
     int             getIndex()const {return m_Index;}
@@ -58,6 +59,7 @@ public:
     void    createConnection(int sourceIndex, double weightVal = RANDOM) override;  // virtual
     void    takeThisSignal(Response fromPrevLayer) override;                        // virtual
     void    pushSignal();
+    static inline double   generateWeightVal();
 
 protected:
     double          m_AgregatedSignal = 0;
@@ -66,7 +68,6 @@ protected:
     inline void     prepareNeuronForNextSignals();
     double          tranFun(double x){return std::tanh(x);}
     static double   transferFunctionDerr(double x){return 1.0 - x * x;}
-    inline double   generateWeightVal();
 
     void            calcOutputGradients(double targetVal);
     void            calcHiddenGradients(Layer &nextLayer, int neuron_index);

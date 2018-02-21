@@ -36,6 +36,8 @@ private:
     void killGivenPercOfPopulation(double SURVIVE_RATE, Population &population);
     void makeBreedRate(Population &population);
     NetAndCharacter &findParent(Population &population);
+    void makeChildren(Population &population, Population &Offspring, Topology &topol, Specification &specif);
+    void makeMutation(NetAndCharacter &individual, double MUTATION_RATE);
 };
 
 #endif // TEACHER_H

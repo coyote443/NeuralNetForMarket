@@ -12,6 +12,33 @@ NeuralNetwork::NeuralNetwork(const Topology & topology, const Specification & sp
         Neuron::setALFA(ALPHA);
 }
 
+NeuralNetwork & NeuralNetwork::operator=(const NeuralNetwork & neuralNet){
+    if(&neuralNet != this){
+        this->ALPHA     = neuralNet.ALPHA;
+        this->BETA      = neuralNet.BETA;
+        this->ETA       = neuralNet.ETA;
+        this->BLUR_FACT = neuralNet.BLUR_FACT;
+        this->BIAS_VAL  = neuralNet.BIAS_VAL;
+        this->m_Specifi = neuralNet.m_Specifi;
+        this->m_Topology= neuralNet.m_Topology;
+
+        const Network & parentNet = neuralNet.m_Net;
+        Network & myNet = this->m_Net;
+
+        for(int layPos = 0; layPos < parentNet.size(); layPos++){
+            const Layer & parentLay = parentNet[layPos];
+            Layer & myLay = myNet[layPos];
+
+            for(int neuPos = 0; neuPos < parentLay.size(); neuPos++){
+                Neuron & parentNeu = *parentLay[neuPos];
+                Neuron & myNeu = *myLay[neuPos];
+                myNeu = parentNeu;
+            }
+        }
+    }
+    return *this;
+}
+
 Responses NeuralNetwork::takeOutput(const Layer &layer) const{
     Responses m_Responses;
     for(Neuron * neuron : layer)
@@ -76,6 +103,13 @@ LinearNetwork::~LinearNetwork(){
     for(Layer & layer: m_Net)
         for(Neuron * neuron : layer)
             delete neuron;
+}
+
+LinearNetwork & LinearNetwork::operator=(const LinearNetwork & linNet){
+    if(&linNet != this){
+        NeuralNetwork::operator=(linNet);
+    }
+    return *this;
 }
 
 void LinearNetwork::feedForward(const Signals &inSigs){

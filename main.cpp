@@ -30,24 +30,24 @@ int main(int argc, char *argv[])
     w.show();
 
 
-    double  beta     =  1.100,      //      Wsp. krzywej aktywacji || brak
-            eta      =  0.200,      //      Wsp. uczenia
-            alfa     =  0.600,      //      Wsp. momentum
-            blur     =  20,         //      Wsp. Określający w jakim zakresie uśredniać sqErr
-            bias     =  1;
+//    double  beta     =  1.100,      //      Wsp. krzywej aktywacji || brak
+//            eta      =  0.200,      //      Wsp. uczenia
+//            alfa     =  0.600,      //      Wsp. momentum
+//            blur     =  20,         //      Wsp. Określający w jakim zakresie uśredniać sqErr
+//            bias     =  1;
 
-    Topology        topol = {2, 4, 1};
-    Specification   spec = {beta, eta, alfa, blur, bias};
+//    Topology        topol = {2, 4, 1};
+//    Specification   spec = {beta, eta, alfa, blur, bias};
 
-    LinearNetwork   nowaSiec(topol, spec);
-    qsrand(QTime::currentTime().msec());
-    qDebug() << qrand()%2 + 1;
-    qDebug() << qrand()%2 + 1;
-    qDebug() << qrand()%2 + 1;
-    qDebug() << qrand()%2 + 1;
+//    LinearNetwork   nowaSiec(topol, spec);
+//    qsrand(QTime::currentTime().msec());
+//    qDebug() << (qrand()%2000 + 1) / 1000.0;
+//    qDebug() <<(qrand()%2000 + 1) / 1000.0;
+//    qDebug() <<(qrand()%2000 + 1) / 1000.0;
+//    qDebug() <<(qrand()%2000 + 1) / 1000.0;
 
 //    Teacher(nowaSiec);
-    qDebug() << "wololo";
+//    qDebug() << "wololo";
 //    LinearNetwork siec = nowaSiec;
 //    Teacher(siec);
 
