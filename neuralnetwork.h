@@ -12,7 +12,7 @@ class NeuralNetwork
 public:
     NeuralNetwork & operator=(const NeuralNetwork & neuralNet);
                     NeuralNetwork(const Topology &topology, const Specification &specify);
-    virtual         ~NeuralNetwork(){}
+    virtual         ~NeuralNetwork();
     virtual void    feedForward(const Signals &inSigs) = 0;
     virtual double  backPropagation(const Signals &learnVect) = 0;
     virtual QString toQString(QString SEP = "[::]") = 0;

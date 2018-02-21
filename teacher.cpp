@@ -136,7 +136,7 @@ void Teacher::calculateAvarageError(Population &population, int netSize, const L
 void Teacher::killGivenPercOfPopulation(double SURVIVE_RATE, Population &population){
     int toDelSize = population.size() - SURVIVE_RATE * population.size();
     for(int toKill = 0; toKill < toDelSize; toKill++){
-        //delete population.back().network;
+        delete population.back().network;
         population.pop_back();
     }
 }
@@ -175,65 +175,42 @@ NetAndCharacter &Teacher::findParent(Population &population){
 }
 
 //  DO REGULACJI JEST TUTAJ ILOŚĆ ZMIAN W PĘTLI A`LA CROSSING OVER
-void Teacher::makeChildren(Population &population, Population &Offspring, Topology &topol, Specification &specif){
+NetAndCharacter & Teacher::makeChildren(Population &population, Topology &topol, Specification &specif){
     // Losuj 2 rodziców, prawdopodobieństwo wylosowania jest proporcjonalne do fitness
-    NetAndCharacter * parentOne = 0, * parentTwo = 0;
+    NetAndCharacter *parentOne = 0, *parentTwo = 0;
     parentOne = &findParent(population);
     do{
         parentTwo = &findParent(population);
     }while(parentOne == parentTwo);
 
-    // Zrób dwójke dzieci identyczną jak rodzice - przepisz wartości;
-    NetAndCharacter offspringOne, offspringTwo;
+    // Zrób dziecko identyczne jak rodzicOne - przepisz wartości;
+    NetAndCharacter *offspring;
 
-    offspringOne.breeadingRate  = 0;
-    offspringOne.errorRate      = 0;
-    offspringOne.network        = new LinearNetwork(topol, specif);
-    *offspringOne.network       = *parentOne->network;
-
-
-    offspringTwo.breeadingRate  = 0;
-    offspringTwo.errorRate      = 0;
-    offspringTwo.network        = new LinearNetwork(topol, specif);
-    *offspringTwo.network       = *parentTwo->network;
+    offspring                 = new NetAndCharacter;
+    offspring->breeadingRate  = 0;
+    offspring->errorRate      = 0;
+    offspring->network        = new LinearNetwork(topol, specif);
+    *offspring->network       = *parentOne->network;
 
     // Tutaj jest pętla zamian a`la crossing over
     for(int zamianaNr = 0; zamianaNr < 150; zamianaNr++){
         int randNum     = qrand()%100;
         int randLayer   = qrand()%(parentOne->network->size() - 1) + 1;
 
-        Layer & parentOneLayer = parentOne->network->m_Net[randLayer];
-        Layer & parentTwoLayer = parentTwo->network->m_Net[randLayer];
+        Layer & parentTwoLayer          = parentTwo->network->m_Net[randLayer];
+        int randNeuron                  = qrand()%parentTwoLayer.size();
+        Neuron & parentTwoNeuron        = *parentTwoLayer[randNeuron];
+        Connections & parentTwoConns    = parentTwoNeuron.getConnections();
+        int randConn                    = qrand()%parentTwoConns.size();
 
-        int randNeuron = qrand()%parentOneLayer.size();
-
-        Neuron & parentOneNeuron = *parentOneLayer[randNeuron];
-        Neuron & parentTwoNeuron = *parentTwoLayer[randNeuron];
-
-        Connections & parentOneConns = parentOneNeuron.getConnections();
-        Connections & parentTwoConns = parentTwoNeuron.getConnections();
-
-        int randConn = qrand()%parentOneConns.size();
-
-        // 1%  na zamianę warstw
-        if(randNum == 0){
-            offspringOne.network->swapLayer(parentTwoLayer, randLayer);
-            offspringTwo.network->swapLayer(parentOneLayer, randLayer);
-        }
-        // 29% na zamiane neuronów
-        else if(randNum < 30){
-            offspringOne.network->swapNeuron(parentTwoNeuron, randLayer, randNeuron);
-            offspringTwo.network->swapNeuron(parentOneNeuron, randLayer, randNeuron);
-        }
-        // 70% na zamianę wag pomiędzy dziećmi
-        else if(randNum < 100){
-            offspringOne.network->swapConn(parentTwoConns[randConn], randLayer, randNeuron, randConn);
-            offspringTwo.network->swapConn(parentOneConns[randConn], randLayer, randNeuron, randConn);
-
-        }
+        if(randNum == 0)            // 1%  na zamianę warstw
+            offspring->network->swapLayer(parentTwoLayer, randLayer);
+        else if(randNum < 30)       // 29% na zamiane neuronów
+            offspring->network->swapNeuron(parentTwoNeuron, randLayer, randNeuron);
+        else if(randNum < 100)      // 70% na zamianę wag pomiędzy dziećmi
+            offspring->network->swapConn(parentTwoConns[randConn], randLayer, randNeuron, randConn);
     }
-    // Z dwójki dzieci, tylko jedno ma szansę się "urodzić"
-    qrand()%2 ? Offspring.push_back(offspringOne) : Offspring.push_back(offspringTwo);
+    return *offspring;
 }
 
 
@@ -302,7 +279,7 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
     /// Net nr. - dla której z kolei sieci przeprowadzamy naukę. netSize - Ile łacznie sieci mamy do nauki. netSize wyznacza sposób
     /// konstrukcji sygnału testowego dla sieci
 
-    int POPULATION_SIZE     = 10;
+    int POPULATION_SIZE     = 20;
     double SURVIVE_RATE     = 0.50;
     double MUTATION_RATE    = 0.10;
 
@@ -349,15 +326,55 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
         /// Obliczamy szanse na rozmnożenie się poszczególnych osobników
         makeBreedRate(population);
 
-        /// Stwórz kolejną generację o wielkości == ilości uśmierconych osobników
+
+        /// Usuń duplikaty u rodziców
+
+        /// Stwórz kolejną generację o wielkości == ilości uśmierconych osobników;
+        /// Nie możemy tworzyc duplikatów, bo proces ewolucji jest skupiony w pewnym momencie tylko na jednym genotypie;
         Population Offspring;
-        for(int x = population.size(); x < POPULATION_SIZE; x++)
-            makeChildren(population, Offspring, topol, specif);
+        for(int x = population.size(); x < POPULATION_SIZE; x++){
+            while(true){
+                Population oneIndiv = {makeChildren(population, topol, specif)};
+                NetAndCharacter & myChildren = oneIndiv.back();
 
-        /// Szczęśliwcy otrzymują mutację
-        for(NetAndCharacter &takenIndiv : Offspring)
-            makeMutation(takenIndiv, MUTATION_RATE);
+                /// Szczęśliwcy otrzymują mutację
+                makeMutation(myChildren, MUTATION_RATE);
 
+                calculateAvarageError(oneIndiv, netSize, AllSignals, sigClasses, netNr);
+
+                if( !Offspring.isEmpty() ){
+                    bool isEqualToAny = false;
+                    for(NetAndCharacter &takenNet : Offspring){     /// Nie może urodzić się identyczny jak jego brat
+                        if(takenNet.errorRate == myChildren.errorRate){
+                            isEqualToAny = true;
+                        }
+                    }
+                    for(NetAndCharacter &takenNet : population){    /// Nie może urodzić się identyczny jak rodzic
+                        if(takenNet.errorRate == myChildren.errorRate){
+                            isEqualToAny = true;
+                        }
+                    }
+
+                    if(isEqualToAny == false){
+                        Offspring.push_back(myChildren);
+                        break;
+                    }
+                    else{
+                        qDebug() << "niechciane dziecko";
+                        qDebug() << myChildren.errorRate;
+                        //delete myChildren.network;
+                    }
+                }
+                else{
+                    Offspring.push_back(myChildren);
+                    break;
+                }
+            }
+
+
+
+            makeChildren(population, topol, specif);
+        }
 
         calculateAvarageError(Offspring, netSize, AllSignals, sigClasses, netNr);
         qDebug() <<"Offspring";

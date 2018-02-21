@@ -12,6 +12,12 @@ NeuralNetwork::NeuralNetwork(const Topology & topology, const Specification & sp
         Neuron::setALFA(ALPHA);
 }
 
+NeuralNetwork::~NeuralNetwork(){
+    for(Layer & layer: m_Net)
+        for(Neuron * neuron : layer)
+            delete neuron;
+}
+
 NeuralNetwork & NeuralNetwork::operator=(const NeuralNetwork & neuralNet){
     if(&neuralNet != this){
         this->ALPHA     = neuralNet.ALPHA;
@@ -98,12 +104,7 @@ LinearNetwork::LinearNetwork(Topology &topol, Specification &specif, AllNetConn 
     createGivenConnections(netCon);
 }
 
-LinearNetwork::~LinearNetwork(){
-    qDebug() << "Jestem w destruktorze linearNetwork";
-    for(Layer & layer: m_Net)
-        for(Neuron * neuron : layer)
-            delete neuron;
-}
+LinearNetwork::~LinearNetwork(){}
 
 LinearNetwork & LinearNetwork::operator=(const LinearNetwork & linNet){
     if(&linNet != this){
