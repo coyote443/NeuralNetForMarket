@@ -70,6 +70,7 @@ void Teacher::teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, con
 
             /// Set Error Bar
             m_ProgBar->setValue(100 - currentError * 100);
+            QCoreApplication::processEvents();                       /// GUI don`t frezee due to using this instruction
         }
         emit nextEpoch();
     }while(currentError > MIN_ERROR);
@@ -98,9 +99,6 @@ void Teacher::calculateAvarageError(Population &population, int netSize, const L
         LinearNetwork * takenNetwork = netandfit.network;
         double & networkAvaErr       = netandfit.errorRate;
 
-        int progressCounter = 0,
-            sigSize         = AllSignals.size();
-
         for(LearnSig learnSig : AllSignals){
             /// Make target vals Vector
             QString takenClass = learnSig.first;                       /// Take signal class
@@ -123,11 +121,9 @@ void Teacher::calculateAvarageError(Population &population, int netSize, const L
             takenNetwork->feedForward(givenSignal);
 
             /// Error sum, and divider optimization
-
             networkAvaErr = takenNetwork->backPropagationOnlyError(targetVals);
-            QCoreApplication::processEvents();
+            QCoreApplication::processEvents();                       /// GUI don`t frezee due to using this instruction
         }
-       // qDebug() << networkAvaErr;
     }
 }
 
@@ -291,7 +287,6 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
     /// Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony fitness(Error) dla każdej sieci.
     qDebug() << "Prosze chwile poczekac";
     calculateAvarageError(population, netSize, AllSignals, sigClasses, netNr);
-
 
 
     qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.errorRate < b.errorRate;}); // to del

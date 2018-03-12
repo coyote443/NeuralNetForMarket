@@ -139,6 +139,8 @@ void LinearNetwork::feedForward(const Signals &inSigs){
             for(Response prevNeuronOut : prevLayerRespo){
                 takenNeuron->takeThisSignal(prevNeuronOut);
             }
+            // tutaj dajemy push
+            takenNeuron->pushSignal();
         }
         prevLayerRespo = takeOutput(takenLayer);
     }
@@ -155,7 +157,7 @@ void LinearNetwork::swapLayer(Layer &layer, unsigned layerNum){
     }
 }
 
-void LinearNetwork::swapNeuron(Neuron &neuron, unsigned layerNum, unsigned neuronNum){
+void LinearNetwork::swapNeuron(Neuron &neuron, unsigned layerNum, int neuronNum){
     Layer &myLayer      = m_Net[layerNum];
     Neuron &myNeuron    = *myLayer[neuronNum];
     if(neuronNum < myLayer.size())

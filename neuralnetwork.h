@@ -58,7 +58,7 @@ public:
     QString toQString(QString SEP = "[::]");
     double  backPropagationOnlyError(const Signals &targetVals);
     void    swapLayer(Layer &layer, unsigned layerNum);
-    void    swapNeuron(Neuron &neuron, unsigned layerNum, unsigned neuronNum);
+    void    swapNeuron(Neuron &neuron, unsigned layerNum, int neuronNum);
     void    swapConn(Connection &conn, unsigned layerNum, unsigned neuronNum, unsigned connNum);
 
 private:

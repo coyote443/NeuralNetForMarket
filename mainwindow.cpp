@@ -141,6 +141,7 @@ void MainWindow::on_actionWczytaj_Sie_triggered(){
 
 void MainWindow::on_actionNowa_Sie_triggered(){
     deleteAndClearNetworks();
+    resetAllProgAndStatus();
     ui->groupBoxAllNetsControls->setDisabled(true);
     ui->groupBoxButtonsStartAndTest->setDisabled(true);
     ui->groupBoxLearn->setDisabled(true);

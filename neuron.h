@@ -7,10 +7,9 @@
 ///
 
 struct Connection{
-            Connection() : m_NeuronIndex(0), m_Weight(0), m_DeltaWeight(0), m_SignalGate(false) {}
-            Connection(int ConNum, double WeiNum) : m_NeuronIndex(ConNum), m_Weight(WeiNum), m_SignalGate(false), m_DeltaWeight(0){}
+            Connection() : m_NeuronIndex(0), m_Weight(0), m_DeltaWeight(0){}
+            Connection(int ConNum, double WeiNum) : m_NeuronIndex(ConNum), m_Weight(WeiNum), m_DeltaWeight(0){}
     int     m_NeuronIndex;
-    bool    m_SignalGate;
     double  m_Weight;
     double  m_DeltaWeight;
 };
@@ -31,7 +30,7 @@ public:
     virtual void    calcHiddenGradients(Layer &nextLayer, int neuron_index) = 0;
     virtual void    updateWeights(Layer &prevLayer) = 0;
 
-    void            swapWeight(Connection & conn, unsigned connNum);
+    void            swapWeight(Connection & conn, int connNum);
     Connections &   getConnections(){return m_Connections;}
 
     void            setOutputVal(double val){m_Output = val;}
@@ -64,8 +63,6 @@ public:
 protected:
     double          m_AgregatedSignal = 0;
     void            agregateThisSignal(Response fromPrvLayer);
-    bool            possibleToSendSignal();
-    void            prepareNeuronForNextSignals();
     inline double   tranFun(double x){return std::tanh(x);}
     inline static double    transferFunctionDerr(double x){return 1.0 - x * x;}
 

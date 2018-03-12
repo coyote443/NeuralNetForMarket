@@ -19,7 +19,7 @@ QString Neuron::toQString(QString SEP){
     return tmpLst.join(SEP);
 }
 
-void Neuron::swapWeight(Connection &conn, unsigned connNum){
+void Neuron::swapWeight(Connection &conn, int connNum){
     if(m_Connections.size() > connNum)
         m_Connections[connNum].m_Weight = conn.m_Weight;
 }
@@ -35,13 +35,11 @@ void LinearNeuron::createConnection(int sourceIndex, double weightVal){
 
 void LinearNeuron::takeThisSignal(Response fromPrevLayer){
     agregateThisSignal(fromPrevLayer);
-    if(possibleToSendSignal())
-        pushSignal();
 }
 
 void LinearNeuron::pushSignal(){
     m_Output = tranFun(m_AgregatedSignal);
-    prepareNeuronForNextSignals();
+    m_AgregatedSignal = 0;
 }
 
 double LinearNeuron::generateWeightVal(){
@@ -56,27 +54,8 @@ void LinearNeuron::agregateThisSignal(Response fromPrvLayer){
     for(Connection &givenConnection : m_Connections)
         if(givenConnection.m_NeuronIndex == sIndex){
             m_AgregatedSignal            +=  sOutput * givenConnection.m_Weight;
-            givenConnection.m_SignalGate =   CLOSED;
         }
 }
-
-bool LinearNeuron::possibleToSendSignal(){
-    for(Connection &givenConnection : m_Connections){
-        if(givenConnection.m_SignalGate == OPEN){
-            return false;
-        }
-    }
-    return true;
-}
-
-void LinearNeuron::prepareNeuronForNextSignals(){
-    m_AgregatedSignal = 0;
-    for(Connection &givenConnection : m_Connections){
-        givenConnection.m_SignalGate = OPEN;
-    }
-}
-
-
 
 void LinInputNeuron::createConnection(int sourceIndex){
     int dontChangeInputSignal = 1;
@@ -86,7 +65,7 @@ void LinInputNeuron::createConnection(int sourceIndex){
 
 void LinInputNeuron::pushSignal(){
     m_Output = m_AgregatedSignal;
-    prepareNeuronForNextSignals();
+    m_AgregatedSignal = 0;
 }
 
 
