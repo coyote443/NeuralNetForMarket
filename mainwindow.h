@@ -9,7 +9,6 @@ namespace Ui {
 class MainWindow;
 }
 
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -48,7 +47,7 @@ private:
     Ui::MainWindow *ui;
     QVector<LinearNetwork*> m_Networks;
     Topology                m_Topology;
-    Specification           m_Specifi;
+    Specification           m_GeneralSpecifi;
     LearnVect               m_LearnVect;
     QMap<QString, int>      m_LearnClasses;
     Teacher                *m_Teacher;
@@ -56,10 +55,8 @@ private:
     int                     m_EpochProgress     = 0;
     double                  m_LrndNetsProgress  = 0;
     int                     m_LrndCounter       = 0;
-    QProgressBar           *m_ProgBar;
     int                     m_NeuronType        = 0;
     int                     m_TeachingSplitType = 0;
-    double                  m_MinError          = 0;
     int                     m_NumOfClasses      = 0;
 
     void setNetSpecify(QStringList &NetChar);

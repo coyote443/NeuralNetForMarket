@@ -15,28 +15,38 @@ typedef QVector<LinearNetwork*>     AllNets;
 
 class Teacher : public QObject
 {
-    Q_OBJECT    
+    Q_OBJECT
+    double  MIN_ERROR       = 0.05,
+            MUTATION_RATE   = 0.05,
+            SURVIVE_RATE    = 0.75;
+    int     POPULATION_SIZE = 2;
+
+    QProgressBar        * m_ProgBar  = 0,
+                        * m_EpochBar = 0;
+    const Specification * m_Specif   = 0;
+    const Topology      * m_Topol    = 0;
 public:
     Teacher(QObject * parent = 0);
-    void teachThoseNetworksFF(AllNets &nets, const LearnVect &sig, SigClasses sigClasses, double targetError, QProgressBar &progBarEpoch);
-    void teachThoseNetworksGen(AllNets &nets, const LearnVect &sig, SigClasses sigClasses,double targetError, QProgressBar &progBarEpoch,
-                               Topology &topol, Specification &specif);
+    void setSpecification(double err, double mut, double surv, int popSize);
+    void setTopolAndGeneralSpecif(const Topology &topol, const Specification &generalSpecif);
+    void linkProgBarrs(QProgressBar *progBar, QProgressBar *epochBarr);
+
+    void teachThoseNetworksFF(AllNets &nets, const LearnVect &sig, SigClasses sigClasses);
+    void teachThoseNetworksGen(AllNets &nets, const LearnVect &sig, SigClasses sigClasses);
+
 signals:
     void nextEpoch();
-    void nextOnePercentOfEpoch();
     void netTrained();
 
 private:
-    void teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig, SigClasses sigClasses, QProgressBar &progBar,
-                           double targetError);
-    void teachOneNetworkGen(LinearNetwork &net, int netNr, int netSize, const LearnVect &sig, SigClasses sigClasses, QProgressBar &progBar,
-                           double targetError, Topology &topol, Specification &specif);
+    void teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig, SigClasses sigClasses);
+    void teachOneNetworkGen(LinearNetwork &net, int netNr, int netSize, const LearnVect &sig, SigClasses sigClasses);
 
-    void calculateAvarageError(Population &population, int netSize, const LearnVect &AllSignals, const QMap<QString,int> sigClasses, int netNr);
+    void calculateAvarageError(Population &population, int netSize, const LearnVect &AllSignals, SigClasses sigClasses, int netNr);
     void killGivenPercOfPopulation(double SURVIVE_RATE, Population &population);
     void makeBreedRate(Population &population);
     NetAndCharacter &findParent(Population &population);
-    NetAndCharacter &makeChildren(Population &population, Topology &topol, Specification &specif);
+    NetAndCharacter &makeChildren(Population &population);
     void makeMutation(NetAndCharacter &individual, double MUTATION_RATE);
 };
 

@@ -188,7 +188,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -443,12 +443,15 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox">
+            <widget class="QSpinBox" name="spinBoxPopulationSize">
              <property name="minimum">
               <number>2</number>
              </property>
              <property name="maximum">
               <number>200</number>
+             </property>
+             <property name="value">
+              <number>25</number>
              </property>
              <property name="displayIntegerBase">
               <number>10</number>

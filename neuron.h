@@ -21,7 +21,7 @@ typedef QVector<Connection> Connections;
 class Neuron
 {
 public:
-                    Neuron(int neuronNum);
+    explicit        Neuron(int neuronNum);
     virtual         ~Neuron();
     virtual void    takeThisSignal(Response fromPrevLayer) = 0;
     virtual void    createConnection(int sourceIndex, double weightVal = RANDOM) = 0;
@@ -54,7 +54,7 @@ protected:
 
 class LinearNeuron : public Neuron{
 public:
-            LinearNeuron(int neuronNum) : Neuron(neuronNum) {}
+    explicit LinearNeuron(int neuronNum) : Neuron(neuronNum) {}
             ~LinearNeuron();
     void    createConnection(int sourceIndex, double weightVal = RANDOM) override;  // virtual
     void    takeThisSignal(Response fromPrevLayer) override;                        // virtual
@@ -65,9 +65,9 @@ protected:
     double          m_AgregatedSignal = 0;
     void            agregateThisSignal(Response fromPrvLayer);
     bool            possibleToSendSignal();
-    inline void     prepareNeuronForNextSignals();
-    double          tranFun(double x){return std::tanh(x);}
-    static double   transferFunctionDerr(double x){return 1.0 - x * x;}
+    void            prepareNeuronForNextSignals();
+    inline double   tranFun(double x){return std::tanh(x);}
+    inline static double    transferFunctionDerr(double x){return 1.0 - x * x;}
 
     void            calcOutputGradients(double targetVal);
     void            calcHiddenGradients(Layer &nextLayer, int neuron_index);
@@ -78,7 +78,7 @@ protected:
 
 class LinInputNeuron : public LinearNeuron{
 public:
-            LinInputNeuron(int neuronNum) : LinearNeuron(neuronNum){}
+    explicit LinInputNeuron(int neuronNum) : LinearNeuron(neuronNum){}
             ~LinInputNeuron(){ }
     void    createConnection(int sourceIndex);
     void    pushSignal();

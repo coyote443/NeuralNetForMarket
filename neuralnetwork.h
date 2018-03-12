@@ -9,14 +9,17 @@ class Teacher;
 class NeuralNetwork
 {
     friend class Teacher;
-public:
+public:    
     NeuralNetwork & operator=(const NeuralNetwork & neuralNet);
-                    NeuralNetwork(const Topology &topology, const Specification &specify);
-    virtual         ~NeuralNetwork();
-    virtual void    feedForward(const Signals &inSigs) = 0;
-    virtual double  backPropagation(const Signals &learnVect) = 0;
-    virtual QString toQString(QString SEP = "[::]") = 0;
-    virtual void    changeNetSpecification(const Specification &specify) = 0;
+    NeuralNetwork(const NeuralNetwork &model);
+    NeuralNetwork(const Topology &topology, const Specification &specify);
+    virtual ~NeuralNetwork();
+
+    virtual void    feedForward(const Signals &inSigs)                      = 0;
+    virtual double  backPropagation(const Signals &learnVect)               = 0;
+    virtual QString toQString(QString SEP = "[::]")                         = 0;
+    virtual void    changeNetSpecification(const Specification &specify)    = 0;
+
     int             size(){return m_Net.size();}
     Signals         getResults() const;
     void            drawMe() const;
@@ -44,10 +47,10 @@ protected:
 class LinearNetwork : public NeuralNetwork
 {
 public:
-            LinearNetwork(Topology &topol, Specification &specif);
-            LinearNetwork(Topology &topol, Specification &specif, AllNetConn &netCon);
-            ~LinearNetwork();
-            LinearNetwork & operator=(const LinearNetwork & neuralNet);
+    LinearNetwork &operator=(const LinearNetwork & neuralNet);
+    LinearNetwork(const Topology &topol, const Specification &specif);
+    LinearNetwork(const Topology &topol, const Specification &specif, AllNetConn &netCon);
+    ~LinearNetwork();
 
     void    feedForward(const Signals &inSigs);
     double  backPropagation(const Signals &targetVals);
@@ -74,7 +77,7 @@ private:
 class RBFNetwork : public NeuralNetwork
 {
 public:
-    RBFNetwork(Topology &topol, Specification & specif) : NeuralNetwork(topol, specif) {}
+    RBFNetwork(const Topology &topol, const Specification & specif) : NeuralNetwork(topol, specif) {}
     ~RBFNetwork(){}
 private:
     void createLayers();

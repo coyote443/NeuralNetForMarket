@@ -12,6 +12,12 @@ NeuralNetwork::NeuralNetwork(const Topology & topology, const Specification & sp
         Neuron::setALFA(ALPHA);
 }
 
+NeuralNetwork::NeuralNetwork(const NeuralNetwork &model){
+    if(&model != this){
+        this->operator =(model);
+    }
+}
+
 NeuralNetwork::~NeuralNetwork(){
     for(Layer & layer: m_Net)
         for(Neuron * neuron : layer)
@@ -19,30 +25,29 @@ NeuralNetwork::~NeuralNetwork(){
 }
 
 NeuralNetwork & NeuralNetwork::operator=(const NeuralNetwork & neuralNet){
-    if(&neuralNet != this){
-        this->ALPHA     = neuralNet.ALPHA;
-        this->BETA      = neuralNet.BETA;
-        this->ETA       = neuralNet.ETA;
-        this->BLUR_FACT = neuralNet.BLUR_FACT;
-        this->BIAS_VAL  = neuralNet.BIAS_VAL;
-        this->m_Specifi = neuralNet.m_Specifi;
-        this->m_Topology= neuralNet.m_Topology;
+    if(&neuralNet == this) return *this;
 
-        const Network & parentNet = neuralNet.m_Net;
-        Network & myNet = this->m_Net;
+    this->ALPHA     = neuralNet.ALPHA;
+    this->BETA      = neuralNet.BETA;
+    this->ETA       = neuralNet.ETA;
+    this->BLUR_FACT = neuralNet.BLUR_FACT;
+    this->BIAS_VAL  = neuralNet.BIAS_VAL;
+    this->m_Specifi = neuralNet.m_Specifi;
+    this->m_Topology= neuralNet.m_Topology;
 
-        for(int layPos = 0; layPos < parentNet.size(); layPos++){
-            const Layer & parentLay = parentNet[layPos];
-            Layer & myLay = myNet[layPos];
+    const Network & parentNet = neuralNet.m_Net;
+    Network & myNet = this->m_Net;
 
-            for(int neuPos = 0; neuPos < parentLay.size(); neuPos++){
-                Neuron & parentNeu = *parentLay[neuPos];
-                Neuron & myNeu = *myLay[neuPos];
-                myNeu = parentNeu;
-            }
+    for(int layPos = 0; layPos < parentNet.size(); layPos++){
+        const Layer & parentLay = parentNet[layPos];
+        Layer & myLay = myNet[layPos];
+
+        for(int neuPos = 0; neuPos < parentLay.size(); neuPos++){
+            Neuron & parentNeu = *parentLay[neuPos];
+            Neuron & myNeu = *myLay[neuPos];
+            myNeu = parentNeu;
         }
     }
-    return *this;
 }
 
 Responses NeuralNetwork::takeOutput(const Layer &layer) const{
@@ -68,7 +73,7 @@ Signals NeuralNetwork::getResults() const{
        return Out;
 }
 
-LinearNetwork::LinearNetwork(Topology &topol, Specification & specif): NeuralNetwork(topol, specif){
+LinearNetwork::LinearNetwork(const Topology &topol, const Specification & specif): NeuralNetwork(topol, specif){
     createLayers();
     createNewConnections();
 }
@@ -99,7 +104,7 @@ void LinearNetwork::createGivenConnections(AllNetConn &netCon)
     }
 }
 
-LinearNetwork::LinearNetwork(Topology &topol, Specification &specif, AllNetConn &netCon): NeuralNetwork(topol, specif){
+LinearNetwork::LinearNetwork(const Topology &topol, const Specification &specif, AllNetConn &netCon): NeuralNetwork(topol, specif){
     createLayers();
     createGivenConnections(netCon);
 }
@@ -108,7 +113,7 @@ LinearNetwork::~LinearNetwork(){}
 
 LinearNetwork & LinearNetwork::operator=(const LinearNetwork & linNet){
     if(&linNet != this){
-        NeuralNetwork::operator=(linNet);
+        (*this).NeuralNetwork::operator =(linNet);
     }
     return *this;
 }
@@ -340,35 +345,3 @@ double LinearNetwork::calcAvarageError(const Signals &targetVals){
     m_Error = std::sqrt(m_Error);
     return (double)m_Error;
 }
-
-
-
-/// DO TESTÓW
-///
-/// CZY FEED FORWARD DZIAŁA DLA PODANEJ SIECI           #OK
-/// KONSTRUKTORY JAKICH OBIEKTÓW SĄ WYWOŁYWANE          #OK
-/// DODAJ DESTRUKTOR DLA WSZYSTKICH WARSTW SIECI        #OK// neurony BIASU usuwa automatycznie. Dlaczego?
-/// PRZETESTUJ PROGRAM POD KĄTEM WYCIEKÓW PAMIĘCI
-/// DOCZYTAJ O FUNKCJACH WIRTUALNYCH I ICH ZWIAZKU Z WYBRANYMI WSKAŹNIKAMI
-/// JEŚLI WSZYSTKO DZIAŁA TO DODAJ
-///     OPCJĘ ZAPISU I ODCZYTU SIECI
-///         WYKORZYSTAJ DO TEGO STRUMIENIE DANYCH
-///         MOŻE BYĆ TO PRZEPROWADZONE W TEN SPOSÓB ŻE WCZYTUJE SIE ROZMIAR SIECI, ROBI NOWĄ SIEĆ A FUNKCJA WCZYTAJ
-///         KORZYSTA Z FUNKCJI ADD_CONNECTION I SET_WEIGHT
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

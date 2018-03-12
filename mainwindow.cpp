@@ -10,10 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_Teacher = new Teacher(this);
     connect(m_Teacher, SIGNAL(nextEpoch()), this, SLOT(setEpochOnStatusBar()));
-    connect(m_Teacher, SIGNAL(nextOnePercentOfEpoch()), this, SLOT(setEpochProgress()));
     connect(m_Teacher, SIGNAL(netTrained()), this, SLOT(setLrndProgress()));
-
-    m_ProgBar = ui->progressBarError;
 
     ui->groupBoxAllNetsControls->setDisabled(true);
     ui->groupBoxButtonsStartAndTest->setDisabled(true);
@@ -125,7 +122,7 @@ void MainWindow::on_actionWczytaj_Sie_triggered(){
         }
 
         for(int netNr = 0; netNr < networksToGenerate; netNr++){
-            LinearNetwork * tmpNet = new LinearNetwork(m_Topology, m_Specifi, allConnections[netNr]);
+            LinearNetwork * tmpNet = new LinearNetwork(m_Topology, m_GeneralSpecifi, allConnections[netNr]);
             m_Networks.push_back(tmpNet);
         }
 
@@ -234,7 +231,7 @@ void MainWindow::on_pushButtonGenerateNetwork_clicked(){
     m_TeachingSplitType == 0 ? numberOfNetworks = 1 : numberOfNetworks = m_NumOfClasses;
 
     for(int net = 0; net < numberOfNetworks; net++){
-        LinearNetwork * wsk = new LinearNetwork(m_Topology, m_Specifi);
+        LinearNetwork * wsk = new LinearNetwork(m_Topology, m_GeneralSpecifi);
         m_Networks.push_back(wsk);
     }
     QMessageBox::information(this, "Powodzenie", "Proces generowania zakończony powodzeniem");
@@ -257,13 +254,26 @@ void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
     resetAllProgAndStatus();
     createSpecifViaForm();
     for(LinearNetwork * net : m_Networks){
-        net->changeNetSpecification(m_Specifi);
+        net->changeNetSpecification(m_GeneralSpecifi);
     }
 
+    m_Teacher->setSpecification(
+        ui->doubleSpinBoxMIN_ERR->value(),
+        ui->doubleSpinBoxMutationVal->value(),
+        ui->doubleSpinBoxSurviveRate->value(),
+        ui->spinBoxPopulationSize->value());
+
+    m_Teacher->linkProgBarrs(
+        ui->progressBarError,
+        ui->progressBarEpoch);
+
+
+    m_Teacher->setTopolAndGeneralSpecif(m_Topology, m_GeneralSpecifi);
+
     if(ui->radioButtonFeedForward->isChecked())
-        m_Teacher->teachThoseNetworksFF(m_Networks, m_LearnVect, m_LearnClasses, m_MinError, *m_ProgBar);
+        m_Teacher->teachThoseNetworksFF(m_Networks, m_LearnVect, m_LearnClasses);
     else
-        m_Teacher->teachThoseNetworksGen(m_Networks, m_LearnVect, m_LearnClasses, m_MinError, *m_ProgBar, m_Topology, m_Specifi);
+        m_Teacher->teachThoseNetworksGen(m_Networks, m_LearnVect, m_LearnClasses);
 
     ui->progressBarNetworkTrained->setValue(100);
 }
@@ -272,7 +282,7 @@ void MainWindow::on_pushButtonTestNetwork_clicked(){
     resetAllProgAndStatus();
     createSpecifViaForm();
     for(LinearNetwork * net : m_Networks){
-        net->changeNetSpecification(m_Specifi);
+        net->changeNetSpecification(m_GeneralSpecifi);
     }
 }
 
@@ -281,13 +291,12 @@ void MainWindow::on_pushButtonTestNetwork_clicked(){
 
 
 void MainWindow::createSpecifViaForm(){
-    m_Specifi.clear();
-    m_Specifi.push_back(ui->doubleSpinBoxBETA->value());
-    m_Specifi.push_back(ui->doubleSpinBoxETA->value());
-    m_Specifi.push_back(ui->doubleSpinBoxALPHA->value());
-    m_Specifi.push_back(ui->spinBoxBLURR->value());
-    m_Specifi.push_back(ui->checkBoxBIAS->isChecked());
-    m_MinError = ui->doubleSpinBoxMIN_ERR->value();
+    m_GeneralSpecifi.clear();
+    m_GeneralSpecifi.push_back(ui->doubleSpinBoxBETA->value());
+    m_GeneralSpecifi.push_back(ui->doubleSpinBoxETA->value());
+    m_GeneralSpecifi.push_back(ui->doubleSpinBoxALPHA->value());
+    m_GeneralSpecifi.push_back(ui->spinBoxBLURR->value());
+    m_GeneralSpecifi.push_back(ui->checkBoxBIAS->isChecked());
 }
 
 
