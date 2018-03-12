@@ -127,7 +127,7 @@ void Teacher::calculateAvarageError(Population &population, int netSize, const L
     }
 }
 
-void Teacher::killGivenPercOfPopulation(double SURVIVE_RATE, Population &population){
+void Teacher::killGivenPercOfPopulation(Population &population){
     int toDelSize = population.size() - SURVIVE_RATE * population.size();
     for(int toKill = 0; toKill < toDelSize; toKill++){
         delete population.back().network;
@@ -209,7 +209,7 @@ NetAndCharacter & Teacher::makeChildren(Population &population){
 }
 
 
-void Teacher::makeMutation(NetAndCharacter &individual, double MUTATION_RATE){
+void Teacher::makeMutation(NetAndCharacter &individual){
     int mutRate = 100 - 100 * MUTATION_RATE;
     int rndVal  = qrand()%100;
 
@@ -310,7 +310,7 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
 
         // usmierć wszystkich rodziców, i zrób tyle dzieci aby to sensownie działało
         /// Uśmiercam pewien % najgorzej przystosowanych
-        killGivenPercOfPopulation(SURVIVE_RATE, population);
+        killGivenPercOfPopulation(population);
 
         qDebug() <<"Po usmierceniu";
         for(NetAndCharacter simple : population)
@@ -332,7 +332,7 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
                 NetAndCharacter & myChildren = oneIndiv.back();
 
                 /// Szczęśliwcy otrzymują mutację
-                makeMutation(myChildren, MUTATION_RATE);
+                makeMutation(myChildren);
 
                 calculateAvarageError(oneIndiv, netSize, AllSignals, sigClasses, netNr);
                 m_EpochBar->setValue(33);

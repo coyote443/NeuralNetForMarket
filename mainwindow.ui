@@ -23,7 +23,7 @@
       <x>650</x>
       <y>10</y>
       <width>271</width>
-      <height>251</height>
+      <height>231</height>
      </rect>
     </property>
     <property name="title">
@@ -35,7 +35,7 @@
        <x>10</x>
        <y>50</y>
        <width>251</width>
-       <height>61</height>
+       <height>51</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -74,7 +74,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>120</y>
+       <y>110</y>
        <width>151</width>
        <height>16</height>
       </rect>
@@ -90,9 +90,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>140</y>
+       <y>130</y>
        <width>250</width>
-       <height>61</height>
+       <height>51</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -144,7 +144,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>210</y>
+       <y>190</y>
        <width>251</width>
        <height>28</height>
       </rect>
@@ -171,7 +171,7 @@
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>301</width>
+       <width>341</width>
        <height>141</height>
       </rect>
      </property>
@@ -183,12 +183,12 @@
        <rect>
         <x>10</x>
         <y>20</y>
-        <width>281</width>
+        <width>321</width>
         <height>111</height>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -199,7 +199,7 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>251</width>
+          <width>291</width>
           <height>61</height>
          </rect>
         </property>
@@ -287,7 +287,7 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>251</width>
+          <width>291</width>
           <height>61</height>
          </rect>
         </property>
@@ -384,7 +384,7 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>251</width>
+          <width>291</width>
           <height>61</height>
          </rect>
         </property>
@@ -463,14 +463,85 @@
         </layout>
        </widget>
       </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Testy</string>
+       </attribute>
+       <widget class="QWidget" name="verticalLayoutWidget_7">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>291</width>
+          <height>61</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayoutCharacteristics_5">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QLabel" name="label_28">
+             <property name="text">
+              <string>Próg Podstawowy</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Próg Relatywny</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayoutSpinTests">
+           <item>
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxBasicThreshold">
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Jest to wartość powyżej której uznajemy że reakcja sieci na daną klasę sygnału jest w wystarczającym stopniu satysfakcjonująca.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.600000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxRelativeThreshold">
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Jeśli dla sieci nauczonej reakcji na klasę sygnału A, nastąpi równocześnie pobudliwość na sygnał klasy B, i zostanie przekroczony ten próg, to informacja o plikach sygnałów wejściowych dla których wystąpiło przekroczenie zostanie umieszczona w pliku .log&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.450000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </widget>
      </widget>
     </widget>
     <widget class="QGroupBox" name="groupBoxTopology">
      <property name="geometry">
       <rect>
-       <x>320</x>
+       <x>360</x>
        <y>30</y>
-       <width>271</width>
+       <width>231</width>
        <height>141</height>
       </rect>
      </property>
@@ -482,7 +553,7 @@
        <rect>
         <x>10</x>
         <y>30</y>
-        <width>251</width>
+        <width>201</width>
         <height>91</height>
        </rect>
       </property>
@@ -621,7 +692,7 @@
       </rect>
      </property>
      <property name="title">
-      <string>Nierozróżnialne klasy testowe</string>
+      <string>Rozróżnialność klas testowych [Liczba nieróżnicowanych klas]</string>
      </property>
      <widget class="QLineEdit" name="lineEdit_2">
       <property name="enabled">
@@ -897,6 +968,36 @@
      </widget>
     </widget>
    </widget>
+   <widget class="QPlainTextEdit" name="plainTextEditUndistinctedSignalClasses">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>270</y>
+      <width>271</width>
+      <height>141</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>250</y>
+      <width>261</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plik .log - info o niezróżnicowanych klasach</string>
+    </property>
+   </widget>
+   <zorder>groupBoxWayOfNetConstruct</zorder>
+   <zorder>groupBoxAllNetsControls</zorder>
+   <zorder>groupBoxTraining</zorder>
+   <zorder>groupBoxLearn</zorder>
+   <zorder>groupBoxNonDiffClasesView</zorder>
+   <zorder>plainTextEditUndistinctedSignalClasses</zorder>
+   <zorder>label_10</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

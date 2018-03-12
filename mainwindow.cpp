@@ -285,6 +285,22 @@ void MainWindow::on_pushButtonTestNetwork_clicked(){
     for(LinearNetwork * net : m_Networks){
         net->changeNetSpecification(m_GeneralSpecifi);
     }
+
+    // PRÓG_PODSTAWOWY  = 70%
+    // PRÓG_REL         = 50%
+
+    // Każdy sygnał powinien mieć info z jakiego pliku pochodzi. Ewentualnie niech będzie coś w stylu pliku dodatkowego generowanego przez
+    // generator sygnałów
+
+    // Weź każdy sygnał wejściowy, sprawdź odpowiedź na niego. Jeśli słabsza niż PRÓG_PODSTAWOWY, umieść informacje o adresie pliku, w pliku logów.
+
+    // Jednocześnie zliczaj średnią odpowiedź dla danego sygnału, wraz ze wszystkimi innymi odpowiedziami sieci, tj.
+        // W przypadku jednej sieci uczącej się wielu klas sygnałów, sprawdź dla jakich liter odpowiedź sieci jest większa niż PRÓG_REL
+        // W przypadku sieci uczącej się jedynie jednej klasy sygnału, sprawdź na jakie inne sygnały jej odpowiedź jest relatywnie wysoka
+
+
+
+
 }
 
 
