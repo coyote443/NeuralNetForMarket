@@ -31,6 +31,7 @@ private slots:
     void setLrndProgress();
     void on_radioButtonFeedForward_clicked();
     void on_radioButtonGeneticAlg_clicked();
+    void on_pushButtonPauseLearn_clicked();
 
 private:
     void createSpecifViaForm();
@@ -51,6 +52,9 @@ private:
     LearnVect               m_LearnVect;
     QMap<QString, int>      m_LearnClasses;
     Teacher                *m_Teacher;
+    QStringList             m_Classes;
+    ErrorMatrix             m_ErrorMatrix;
+
     int                     m_EpochCounter      = 0;
     int                     m_EpochProgress     = 0;
     double                  m_LrndNetsProgress  = 0;
@@ -58,10 +62,12 @@ private:
     int                     m_NeuronType        = 0;
     int                     m_TeachingSplitType = 0;
     int                     m_NumOfClasses      = 0;
+    bool                    m_StopStartSwitch   = true;
 
     void setNetSpecify(QStringList &NetChar);
     void setNetTopologyForm(QStringList &topology);
     void deleteAndClearNetworks();
+    void createLogAndErrMatrix();
 };
 
 #endif // MAINWINDOW_H

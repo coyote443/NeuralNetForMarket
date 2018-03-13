@@ -18,12 +18,17 @@ class Teacher : public QObject
     Q_OBJECT
 public:
     Teacher(QObject * parent = 0);
+    void stopStartMe(){m_Stop = !m_Stop;}
+
     void setSpecification(double err, double mut, double surv, int popSize);
+    void setThresholds(double basic, double relative);
     void setTopolAndGeneralSpecif(const Topology &topol, const Specification &generalSpecif);
     void linkProgBarrs(QProgressBar *progBar, QProgressBar *epochBarr);
+    const AllNetworksRespos &getRespos(){return m_AllResposAllNets;}
 
     void teachThoseNetworksFF(AllNets &nets, const LearnVect &sig, SigClasses sigClasses);
     void teachThoseNetworksGen(AllNets &nets, const LearnVect &sig, SigClasses sigClasses);
+    void testThoseNetworks(AllNets &nets, const LearnVect &sig, SigClasses sigClasses);
 
 signals:
     void nextEpoch();
@@ -32,6 +37,7 @@ signals:
 private:
     void teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig, SigClasses sigClasses);
     void teachOneNetworkGen(LinearNetwork &net, int netNr, int netSize, const LearnVect &sig, SigClasses sigClasses);
+    void testOneNetwork(LinearNetwork &nets, int netSize, const LearnVect &sig, SigClasses sigClasses);
 
     void calculateAvarageError(Population &population, int netSize, const LearnVect &AllSignals, SigClasses sigClasses, int netNr);
     void killGivenPercOfPopulation(Population &population);
@@ -45,10 +51,16 @@ private:
             SURVIVE_RATE    = 0.75;
     int     POPULATION_SIZE = 2;
 
+    double  THRESHOLD_BASIC = 0.70,
+            THRESHOLD_RELAT = 0.50;
+
     QProgressBar        * m_ProgBar  = 0,
                         * m_EpochBar = 0;
     const Specification * m_Specif   = 0;
     const Topology      * m_Topol    = 0;
+    bool                  m_Stop     = false;
+    OneNetworkRespos        m_AllResposOneNet;
+    AllNetworksRespos     m_AllResposAllNets;
 };
 
 #endif // TEACHER_H

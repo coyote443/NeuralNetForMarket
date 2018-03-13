@@ -2,6 +2,7 @@
 
 NeuralNetwork::NeuralNetwork(const Topology & topology, const Specification & specify) : m_Topology(topology),
     m_Specifi(specify){
+        qDebug() << "tworze siec";
         BETA     =  m_Specifi[0],      //      Wsp. krzywej aktywacji || brak
         ETA      =  m_Specifi[1],      //      Wsp. uczenia
         ALPHA    =  m_Specifi[2],      //      Wsp. momentum

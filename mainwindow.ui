@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>941</width>
+    <width>938</width>
     <height>671</height>
    </rect>
   </property>
@@ -20,9 +20,9 @@
    <widget class="QGroupBox" name="groupBoxWayOfNetConstruct">
     <property name="geometry">
      <rect>
-      <x>650</x>
+      <x>640</x>
       <y>10</y>
-      <width>271</width>
+      <width>281</width>
       <height>231</height>
      </rect>
     </property>
@@ -188,7 +188,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -256,7 +256,7 @@
               <double>0.050000000000000</double>
              </property>
              <property name="value">
-              <double>0.050000000000000</double>
+              <double>0.750000000000000</double>
              </property>
             </widget>
            </item>
@@ -509,7 +509,7 @@
               <double>0.010000000000000</double>
              </property>
              <property name="value">
-              <double>0.600000000000000</double>
+              <double>0.250000000000000</double>
              </property>
             </widget>
            </item>
@@ -660,25 +660,41 @@
        <rect>
         <x>10</x>
         <y>20</y>
-        <width>151</width>
+        <width>121</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>Rozpocznij naukę sieci</string>
+       <string>Rozpocznij Naukę</string>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButtonTestNetwork">
       <property name="geometry">
        <rect>
-        <x>190</x>
+        <x>270</x>
         <y>20</y>
-        <width>191</width>
+        <width>111</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>Przetestuj materiał testowy</string>
+       <string>Testuj Sieć</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButtonPauseLearn">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>20</y>
+        <width>121</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Przycisk ten przy FF dokonuje zatrzymania procesu, i jego ponownego odpalenia po ponownym kliknięciu . Istnieje możliwość zapisania częściowo nauczonych sieci. W przypadku algorytmów genetycznych zatrzymanie procesu spowoduje zwrócenie najlepiej dostosowanego osobnika / osobników. UWAGA: Populacje robocze ulegają usunięciu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string>Start / Stop</string>
       </property>
      </widget>
     </widget>
@@ -692,11 +708,11 @@
       </rect>
      </property>
      <property name="title">
-      <string>Rozróżnialność klas testowych [Liczba nieróżnicowanych klas]</string>
+      <string>Nieróżnicowalne Klasy Sygnału</string>
      </property>
-     <widget class="QLineEdit" name="lineEdit_2">
+     <widget class="QLineEdit" name="lineEditDistinction">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="geometry">
        <rect>
@@ -745,7 +761,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>% ukończenia epoki nauki</string>
+       <string>% ukończenia epoki</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -777,7 +793,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>% nauczonych sieci</string>
+       <string>% przetworzonych sieci</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -968,43 +984,18 @@
      </widget>
     </widget>
    </widget>
-   <widget class="QPlainTextEdit" name="plainTextEditUndistinctedSignalClasses">
-    <property name="geometry">
-     <rect>
-      <x>650</x>
-      <y>270</y>
-      <width>271</width>
-      <height>141</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_10">
-    <property name="geometry">
-     <rect>
-      <x>650</x>
-      <y>250</y>
-      <width>261</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Plik .log - info o niezróżnicowanych klasach</string>
-    </property>
-   </widget>
    <zorder>groupBoxWayOfNetConstruct</zorder>
    <zorder>groupBoxAllNetsControls</zorder>
    <zorder>groupBoxTraining</zorder>
    <zorder>groupBoxLearn</zorder>
    <zorder>groupBoxNonDiffClasesView</zorder>
-   <zorder>plainTextEditUndistinctedSignalClasses</zorder>
-   <zorder>label_10</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>941</width>
+     <width>938</width>
      <height>26</height>
     </rect>
    </property>

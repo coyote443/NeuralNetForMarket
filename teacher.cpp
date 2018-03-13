@@ -7,11 +7,18 @@ Teacher::Teacher(QObject *parent): QObject(parent){
 }
 
 
+///     SET SPECIF`S AND LINK BARS
+
 void Teacher::setSpecification(double err, double mut, double surv, int popSize){
     MIN_ERROR       = err,
     MUTATION_RATE   = mut,
     SURVIVE_RATE    = surv;
     POPULATION_SIZE = popSize;
+}
+
+void Teacher::setThresholds(double basic, double relative){
+    THRESHOLD_BASIC = basic,
+    THRESHOLD_RELAT = relative;
 }
 
 void Teacher::setTopolAndGeneralSpecif(const Topology &topol, const Specification &specif){
@@ -24,6 +31,60 @@ void Teacher::linkProgBarrs(QProgressBar *progBar, QProgressBar *epochBarr){
     m_EpochBar= epochBarr;
 }
 
+
+///     MAIN FUNCTIONS
+
+void Teacher::teachThoseNetworksFF(AllNets &nets, const LearnVect &sig, SigClasses sigClasses){
+    if(nets.size() == 1){
+        teachOneNetworkFF(*nets.first(), 0, 1, sig, sigClasses);
+
+        if(m_Stop == false)
+            emit netTrained();
+    }
+    else{
+        for(int pos = 0; pos < nets.size(); pos++){
+            LinearNetwork * linearNetwork = nets[pos];
+            teachOneNetworkFF(*linearNetwork, pos, nets.size(), sig, sigClasses);
+
+            if(m_Stop == false)
+                emit netTrained();
+        }
+    }
+}
+
+void Teacher::teachThoseNetworksGen(AllNets &nets, const LearnVect &sig, SigClasses sigClasses){
+    if(nets.size() == 1){
+        teachOneNetworkGen(*nets.first(), 0, 1, sig, sigClasses);
+        emit netTrained();
+    }
+    else{
+        for(int pos = 0; pos < nets.size(); pos++){
+            LinearNetwork * linearNetwork = nets[pos];
+            teachOneNetworkGen(*linearNetwork, pos, nets.size(), sig, sigClasses);
+            emit netTrained();
+        }
+    }
+}
+
+void Teacher::testThoseNetworks(AllNets &nets, const LearnVect &sig, SigClasses sigClasses){
+    if(nets.size() == 1){
+        testOneNetwork(*nets.first(), 1, sig, sigClasses);
+        m_AllResposAllNets.push_back(m_AllResposOneNet);
+        m_AllResposOneNet.clear();
+        emit netTrained();
+    }
+    else
+        for(int pos = 0; pos < nets.size(); pos++){
+            LinearNetwork * linearNetwork = nets[pos];
+            testOneNetwork(*linearNetwork, nets.size(), sig, sigClasses);
+            m_AllResposAllNets.push_back(m_AllResposOneNet);
+            m_AllResposOneNet.clear();
+            emit netTrained();
+        }
+}
+
+
+///     TEACHING AND TESTING FUN.
 
 void Teacher::teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig, SigClasses sigClasses){
     int howManyOuts = (netSize > 1 ? 1 : sigClasses.size());
@@ -40,6 +101,7 @@ void Teacher::teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, con
             sigSize         = learnVect.size();
 
         for(LearnSig lernSig : learnVect){
+            if(m_Stop == true) break;
             /// Make target vals Vector
             QString takenClass = lernSig.first;                       /// Take signal class
 
@@ -73,23 +135,192 @@ void Teacher::teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, con
             QCoreApplication::processEvents();                       /// GUI don`t frezee due to using this instruction
         }
         emit nextEpoch();
-    }while(currentError > MIN_ERROR);
+    }while(currentError > MIN_ERROR && m_Stop == false);
 }
 
-void Teacher::teachThoseNetworksFF(AllNets &nets, const LearnVect &sig, SigClasses sigClasses){
-    if(nets.size() == 1){
-        teachOneNetworkFF(*nets.first(), 0, 1, sig, sigClasses);
-        emit netTrained();
+void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netSize, const LearnVect &AllSignals, SigClasses sigClasses){
+
+    /// Net nr. - dla której z kolei sieci przeprowadzamy naukę. netSize - Ile łacznie sieci mamy do nauki. netSize wyznacza sposób
+    /// konstrukcji sygnału testowego dla sieci
+
+    /// Wygeneruj losową populację sieci dla zadanego problemu.
+    Population population;
+    for(int indivd = 0; indivd < POPULATION_SIZE - 1; indivd++){
+        LinearNetwork * tmp = new LinearNetwork(*m_Topol, *m_Specif);
+        population.push_back({0, 0, tmp});
     }
-    else{
-        for(int pos = 0; pos < nets.size(); pos++){
-            LinearNetwork * linearNetwork = nets[pos];
-            teachOneNetworkFF(*linearNetwork, pos, nets.size(), sig, sigClasses);
-            emit netTrained();
+
+    /// Włączamy otrzymaną sieć do populacji
+    population.push_back({0, 0, &receivedNet});
+
+    /// Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony fitness(Error) dla każdej sieci.
+    qDebug() << "Prosze chwile poczekac";
+    calculateAvarageError(population, netSize, AllSignals, sigClasses, netNr);
+
+
+    qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.errorRate < b.errorRate;}); // to del
+
+    qDebug() <<"Posortowany wedle errRate ";
+    for(NetAndCharacter simple : population)
+        qDebug() << simple.errorRate;
+    qDebug() <<"END " << endl << endl;
+
+    double currAvError = 1.0;
+
+    /// Zacznij ewoulcję
+    do{
+        qDebug() << "Pop size " << population.size();
+        qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.errorRate < b.errorRate;});
+
+        qDebug() <<"Przed Usmierceniem";
+        for(NetAndCharacter simple : population)
+            qDebug() << simple.errorRate;
+        qDebug() <<"END " << endl << endl;
+
+        // usmierć wszystkich rodziców, i zrób tyle dzieci aby to sensownie działało
+        /// Uśmiercam pewien % najgorzej przystosowanych
+        killGivenPercOfPopulation(population);
+
+        qDebug() <<"Po usmierceniu";
+        for(NetAndCharacter simple : population)
+            qDebug() << simple.errorRate;
+        qDebug() <<"END " << endl << endl;
+
+        /// Obliczamy szanse na rozmnożenie się poszczególnych osobników
+        makeBreedRate(population);
+
+
+        /// Usuń duplikaty u rodziców
+
+        /// Stwórz kolejną generację o wielkości == ilości uśmierconych osobników;
+        /// Nie możemy tworzyc duplikatów, bo proces ewolucji jest skupiony w pewnym momencie tylko na jednym genotypie;
+        Population Offspring;
+        for(int x = population.size(); x < POPULATION_SIZE; x++){
+            while(true){
+                Population oneIndiv = {makeChildren(population)};
+                NetAndCharacter & myChildren = oneIndiv.back();
+
+                /// Szczęśliwcy otrzymują mutację
+                makeMutation(myChildren);
+
+                calculateAvarageError(oneIndiv, netSize, AllSignals, sigClasses, netNr);
+                m_EpochBar->setValue(33);
+
+                if( !Offspring.isEmpty() ){
+                    bool isEqualToAny = false;
+                    for(NetAndCharacter &takenNet : Offspring){     /// Nie może urodzić się identyczny jak jego brat
+                        if(takenNet.errorRate == myChildren.errorRate){
+                            isEqualToAny = true;
+                        }
+                    }
+                    for(NetAndCharacter &takenNet : population){    /// Nie może urodzić się identyczny jak rodzic
+                        if(takenNet.errorRate == myChildren.errorRate){
+                            isEqualToAny = true;
+                        }
+                    }
+
+                    if(isEqualToAny == false){
+                        Offspring.push_back(myChildren);
+                        break;
+                    }
+                    else{
+                        qDebug() << "niechciane dziecko";
+                        qDebug() << myChildren.errorRate;
+                        delete myChildren.network;
+                    }
+                }
+                else{
+                    Offspring.push_back(myChildren);
+                    break;
+                }
+            }
+            makeChildren(population);
         }
-    }
+
+        calculateAvarageError(Offspring, netSize, AllSignals, sigClasses, netNr);
+        m_EpochBar->setValue(66);
+
+        qDebug() <<"Offspring";
+        for(NetAndCharacter simple : Offspring)
+            qDebug() << simple.errorRate;
+        qDebug() <<"END " << endl << endl;
+
+        /// Dzieci dołączają do populacji rodzicielskiej
+        for(NetAndCharacter &child : Offspring)
+            population.push_back(child);
+
+        /// Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony fitness(Error) dla każdej sieci.
+        calculateAvarageError(population, netSize, AllSignals, sigClasses, netNr);
+        m_EpochBar->setValue(100);
+
+        qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.errorRate < b.errorRate;});
+
+        currAvError = population.front().errorRate;
+
+        /// Tutaj określamy wartość poprawności odpowiedzi dla najlepszej sieci
+        m_ProgBar->setValue(100 - currAvError * 100);
+        emit nextEpoch();
+    }while(currAvError > MIN_ERROR && m_Stop == false);
+
+    /// Po okresie nauki, przekształcamy otrzymaną referencję do sieci tak, aby odpowiadała najlepszemu osobnikowi.
+    receivedNet = *population.front().network;
 }
 
+//     Assumption - teaching signal was sorted
+// niezróżnicowane pliki mają iść do logu !!!
+
+void Teacher::testOneNetwork(LinearNetwork &nets, int netSize, const LearnVect &sig, SigClasses sigClasses){
+
+    int howManyOuts = (netSize > 1 ? 1 : sigClasses.size());
+
+    OneClassRespos OneRespos(howManyOuts);
+
+    for(double &val : OneRespos) val = 0;
+
+    LearnVect testVect          = sig;
+    QString oldLearnSignClass   = testVect.front().first;
+
+    int progressCounter = 0,
+        sigSize         = sig.size();
+
+    int howManySignals = 0;
+    for(LearnSig lernSig : testVect){
+        QString takenClass = lernSig.first;                       /// Take signal class
+
+        // Wykryj jaki typ klasy leci
+        if(oldLearnSignClass != takenClass){
+            for(double &record: OneRespos) record /= howManySignals;
+            m_AllResposOneNet.push_back(OneRespos);
+            qDebug() << QString("Dla sygnału %1 wrzucam litere").arg(takenClass);
+            howManySignals = 0;
+            for(double &val : OneRespos) val = 0;
+            oldLearnSignClass = takenClass;
+        }
+
+        // FeedForward
+        const Signals &givenSignal = lernSig.second;
+        nets.feedForward(givenSignal);
+
+        // Zbieramy odpowiedzi sieci
+        Signals outs = nets.getResults();
+
+        for(int pos = 0; pos < outs.size(); pos++){
+            OneRespos[pos] += outs[pos];
+        }
+        howManySignals++;
+
+        /// Set Epoch Bar
+        double progtmp = (double)progressCounter / (double)sigSize * 100;
+        m_EpochBar->setValue(progtmp);
+        progressCounter++;
+
+        QCoreApplication::processEvents();                       /// GUI don`t frezee due to using this instruction
+    }
+    m_AllResposOneNet.push_back(OneRespos);
+}
+
+
+///     ADDITIONAL  AL. GEN FUNCTIONS
 
 void Teacher::calculateAvarageError(Population &population, int netSize, const LearnVect &AllSignals, SigClasses sigClasses, int netNr){
     for(NetAndCharacter &netandfit : population){
@@ -268,148 +499,3 @@ void Teacher::makeMutation(NetAndCharacter &individual){
     }
 }
 
-
-void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netSize, const LearnVect &AllSignals, SigClasses sigClasses){
-
-    /// Net nr. - dla której z kolei sieci przeprowadzamy naukę. netSize - Ile łacznie sieci mamy do nauki. netSize wyznacza sposób
-    /// konstrukcji sygnału testowego dla sieci
-
-    /// Wygeneruj losową populację sieci dla zadanego problemu.
-    Population population;
-    for(int indivd = 0; indivd < POPULATION_SIZE - 1; indivd++){
-        LinearNetwork * tmp = new LinearNetwork(*m_Topol, *m_Specif);
-        population.push_back({0, 0, tmp});
-    }
-
-    /// Włączamy otrzymaną sieć do populacji
-    population.push_back({0, 0, &receivedNet});
-
-    /// Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony fitness(Error) dla każdej sieci.
-    qDebug() << "Prosze chwile poczekac";
-    calculateAvarageError(population, netSize, AllSignals, sigClasses, netNr);
-
-
-    qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.errorRate < b.errorRate;}); // to del
-
-    qDebug() <<"Posortowany wedle errRate ";
-    for(NetAndCharacter simple : population)
-        qDebug() << simple.errorRate;
-    qDebug() <<"END " << endl << endl;
-
-    double currAvError = 1.0;
-
-    /// Zacznij ewoulcję
-    do{
-        qDebug() << "Pop size " << population.size();
-        qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.errorRate < b.errorRate;});
-
-        qDebug() <<"Przed Usmierceniem";
-        for(NetAndCharacter simple : population)
-            qDebug() << simple.errorRate;
-        qDebug() <<"END " << endl << endl;
-
-        // usmierć wszystkich rodziców, i zrób tyle dzieci aby to sensownie działało
-        /// Uśmiercam pewien % najgorzej przystosowanych
-        killGivenPercOfPopulation(population);
-
-        qDebug() <<"Po usmierceniu";
-        for(NetAndCharacter simple : population)
-            qDebug() << simple.errorRate;
-        qDebug() <<"END " << endl << endl;
-
-        /// Obliczamy szanse na rozmnożenie się poszczególnych osobników
-        makeBreedRate(population);
-
-
-        /// Usuń duplikaty u rodziców
-
-        /// Stwórz kolejną generację o wielkości == ilości uśmierconych osobników;
-        /// Nie możemy tworzyc duplikatów, bo proces ewolucji jest skupiony w pewnym momencie tylko na jednym genotypie;
-        Population Offspring;
-        for(int x = population.size(); x < POPULATION_SIZE; x++){
-            while(true){
-                Population oneIndiv = {makeChildren(population)};
-                NetAndCharacter & myChildren = oneIndiv.back();
-
-                /// Szczęśliwcy otrzymują mutację
-                makeMutation(myChildren);
-
-                calculateAvarageError(oneIndiv, netSize, AllSignals, sigClasses, netNr);
-                m_EpochBar->setValue(33);
-
-                if( !Offspring.isEmpty() ){
-                    bool isEqualToAny = false;
-                    for(NetAndCharacter &takenNet : Offspring){     /// Nie może urodzić się identyczny jak jego brat
-                        if(takenNet.errorRate == myChildren.errorRate){
-                            isEqualToAny = true;
-                        }
-                    }
-                    for(NetAndCharacter &takenNet : population){    /// Nie może urodzić się identyczny jak rodzic
-                        if(takenNet.errorRate == myChildren.errorRate){
-                            isEqualToAny = true;
-                        }
-                    }
-
-                    if(isEqualToAny == false){
-                        Offspring.push_back(myChildren);
-                        break;
-                    }
-                    else{
-                        qDebug() << "niechciane dziecko";
-                        qDebug() << myChildren.errorRate;
-                        delete myChildren.network;
-                    }
-                }
-                else{
-                    Offspring.push_back(myChildren);
-                    break;
-                }
-            }
-
-
-
-            makeChildren(population);
-        }
-
-        calculateAvarageError(Offspring, netSize, AllSignals, sigClasses, netNr);
-        m_EpochBar->setValue(66);
-
-        qDebug() <<"Offspring";
-        for(NetAndCharacter simple : Offspring)
-            qDebug() << simple.errorRate;
-        qDebug() <<"END " << endl << endl;
-
-        /// Dzieci dołączają do populacji rodzicielskiej
-        for(NetAndCharacter &child : Offspring)
-            population.push_back(child);
-
-        /// Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony fitness(Error) dla każdej sieci.
-        calculateAvarageError(population, netSize, AllSignals, sigClasses, netNr);
-        m_EpochBar->setValue(100);
-
-        qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.errorRate < b.errorRate;});
-
-        currAvError = population.front().errorRate;
-
-        /// Tutaj określamy wartość poprawności odpowiedzi dla najlepszej sieci
-        m_ProgBar->setValue(100 - currAvError * 100);
-        emit nextEpoch();
-    }while(currAvError > MIN_ERROR);
-
-    /// Po okresie nauki, przekształcamy otrzymaną referencję do sieci tak, aby odpowiadała najlepszemu osobnikowi.
-    receivedNet = *population.front().network;
-}
-
-void Teacher::teachThoseNetworksGen(AllNets &nets, const LearnVect &sig, SigClasses sigClasses){
-    if(nets.size() == 1){
-        teachOneNetworkGen(*nets.first(), 0, 1, sig, sigClasses);
-        emit netTrained();
-    }
-    else{
-        for(int pos = 0; pos < nets.size(); pos++){
-            LinearNetwork * linearNetwork = nets[pos];
-            teachOneNetworkGen(*linearNetwork, pos, nets.size(), sig, sigClasses);
-            emit netTrained();
-        }
-    }
-}

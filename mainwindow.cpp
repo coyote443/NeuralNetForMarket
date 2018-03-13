@@ -130,6 +130,7 @@ void MainWindow::on_actionWczytaj_Sie_triggered(){
         ui->groupBoxAllNetsControls->setEnabled(true);
         ui->groupBoxTopology->setDisabled(true);
         ui->groupBoxLearn->setEnabled(true);
+        ui->groupBoxWayOfNetConstruct->setDisabled(true);
     }
 
     m_Networks.size() >  1 ? ui->radioButtonNetworkForEachClass->setChecked(true) :
@@ -183,10 +184,12 @@ void MainWindow::makeClassNamesMap(QStringList classes){
 
 void MainWindow::on_pushButtonLoadDataset_clicked(){
     resetAllProgAndStatus();
+    ui->groupBoxTraining->setDisabled(true);
 
     QString fileName = QFileDialog::getOpenFileName(this, "Otwórz plik z wygenerowaną bazą wektorów uczących",
                                                     "",tr("Signal (*.signal);; All Files (*)"));
     QFile inputFile(fileName);
+    m_Classes.clear();
 
     if (inputFile.open(QIODevice::ReadOnly)){
         QString SEP = "[::]";
@@ -196,9 +199,9 @@ void MainWindow::on_pushButtonLoadDataset_clicked(){
 
         QTextStream in(&inputFile);
         QStringList topology    = in.readLine().split(SEP);
-        QStringList classes     = in.readLine().split(SEP);
-        setClassesNamesInGui(classes);
-        makeClassNamesMap(classes);
+        m_Classes               = in.readLine().split(SEP);
+        setClassesNamesInGui(m_Classes);
+        makeClassNamesMap(m_Classes);
         setInOutSizesInGui(topology);
 
         while (!in.atEnd()){
@@ -216,8 +219,10 @@ void MainWindow::on_pushButtonLoadDataset_clicked(){
         inputFile.close();
     }
     ui->pushButtonGenerateNetwork->setEnabled(true);
-    if(m_Networks.size() > 0)
+    if(m_Networks.size() > 0){
+        ui->groupBoxTraining->setEnabled(true);
         ui->groupBoxButtonsStartAndTest->setEnabled(true);
+    }
     ui->groupBoxLearningMethod->setEnabled(true);
 }
 
@@ -227,6 +232,9 @@ void MainWindow::on_pushButtonGenerateNetwork_clicked(){
     createSpecifViaForm();
     createTopologyViaForm();
     deleteAndClearNetworks();
+
+    ui->groupBoxTraining->setEnabled(true);
+
 
     int numberOfNetworks = 0;
     m_TeachingSplitType == 0 ? numberOfNetworks = 1 : numberOfNetworks = m_NumOfClasses;
@@ -254,6 +262,11 @@ void MainWindow::on_radioButtonGeneticAlg_clicked(){
 void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
     resetAllProgAndStatus();
     createSpecifViaForm();
+
+    ui->groupBoxAllNetsControls->setDisabled(true);
+    ui->groupBoxLearn->setDisabled(true);
+    ui->pushButtonTestNetwork->setDisabled(true);
+
     for(LinearNetwork * net : m_Networks){
         net->changeNetSpecification(m_GeneralSpecifi);
     }
@@ -276,9 +289,107 @@ void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
     else
         m_Teacher->teachThoseNetworksGen(m_Networks, m_LearnVect, m_LearnClasses);
 
-    ui->progressBarNetworkTrained->setValue(100);
+    if(m_StopStartSwitch == true)
+        ui->progressBarNetworkTrained->setValue(100);
 }
 
+
+void MainWindow::on_pushButtonPauseLearn_clicked(){
+    if(m_StopStartSwitch){
+        ui->groupBoxAllNetsControls->setEnabled(true);
+        ui->groupBoxLearn->setEnabled(true);
+        ui->pushButtonTestNetwork->setEnabled(true);
+
+        m_Teacher->stopStartMe();
+        m_StopStartSwitch = false;
+    }
+    else{
+        m_Teacher->stopStartMe();
+        m_StopStartSwitch = true;
+        on_pushButtonStartNetworkLearning_clicked();
+    }
+}
+
+
+
+
+void MainWindow::createLogAndErrMatrix(){
+    ErrorLine   errorLine;
+
+    const AllNetworksRespos &resp = m_Teacher->getRespos();
+    QFile log("LearningResult.log");
+    log.open( QIODevice::WriteOnly);
+
+    int longestName = 0;
+    for(QString name : m_Classes)
+        if(longestName < name.size())
+            longestName = name.size();
+    if(longestName < 5) longestName = 5;
+
+    QTextStream display(&log);
+    QString SEP = QString(longestName, ' ');
+
+    display << SEP << "  ";
+    for(QString name : m_Classes)
+        display << name  << SEP << "    ";
+    display << endl;
+
+    if(resp.size() == 1){   // for only one network results
+        const OneNetworkRespos &netResp = resp.first();
+        for(int pos = 0; pos < netResp.size(); pos++){
+            display << m_Classes[pos] << SEP;
+
+            const OneClassRespos &oneClass = netResp[pos];
+            errorLine.clear();
+            for(double val : oneClass){
+                errorLine.push_back(val);
+                QString number;
+
+                if(val >= 0) number += " ";
+                number += QString("%1").arg(val);
+
+                if(number.size() <= 5){
+                    for(int x = number.size(); x < 4; x++)
+                        number += "0";
+                }
+                else number.resize(5);
+                display << number << SEP;
+            }
+            m_ErrorMatrix.push_back(errorLine);
+            display << endl;
+        }
+    }
+
+    else{   // number of networks > 1
+        for(int classNmb = 0; classNmb < m_Classes.size(); classNmb++){
+            display << m_Classes[classNmb] << SEP;
+            errorLine.clear();
+            for(int networkNnb = 0; networkNnb < resp.size(); networkNnb++){
+
+                double val = resp[networkNnb][classNmb].first();
+                errorLine.push_back(val);
+
+                QString number;
+
+                if(val >= 0) number += " ";
+                number += QString("%1").arg(val);
+
+                if(number.size() <= 5){
+                    for(int x = number.size(); x < 4; x++)
+                        number += "0";
+                }
+                else number.resize(5);
+                display << number << SEP;
+            }
+            m_ErrorMatrix.push_back(errorLine);
+            display << endl;
+        }
+    }
+    log.close();
+}
+
+
+/// UWAGA FUNKCJA DO POPRAWIENIA PO USUNIĘCIU BUGA W BIASIE
 void MainWindow::on_pushButtonTestNetwork_clicked(){
     resetAllProgAndStatus();
     createSpecifViaForm();
@@ -286,8 +397,11 @@ void MainWindow::on_pushButtonTestNetwork_clicked(){
         net->changeNetSpecification(m_GeneralSpecifi);
     }
 
-    // PRÓG_PODSTAWOWY  = 70%
-    // PRÓG_REL         = 50%
+    m_Teacher->setThresholds(
+                ui->doubleSpinBoxBasicThreshold->value(),
+                ui->doubleSpinBoxRelativeThreshold->value());
+
+    m_Teacher->testThoseNetworks(m_Networks, m_LearnVect, m_LearnClasses);
 
     // Każdy sygnał powinien mieć info z jakiego pliku pochodzi. Ewentualnie niech będzie coś w stylu pliku dodatkowego generowanego przez
     // generator sygnałów
@@ -298,9 +412,22 @@ void MainWindow::on_pushButtonTestNetwork_clicked(){
         // W przypadku jednej sieci uczącej się wielu klas sygnałów, sprawdź dla jakich liter odpowiedź sieci jest większa niż PRÓG_REL
         // W przypadku sieci uczącej się jedynie jednej klasy sygnału, sprawdź na jakie inne sygnały jej odpowiedź jest relatywnie wysoka
 
+    createLogAndErrMatrix();
 
+    // jeśli wykryjesz że wartość danego pola jest większa niż próg, a jednocześnie  posX != posY to
+    // wykryj klasę dla której nie nastąpiło rozróżnienie, tak że wartość posX będzie w mapie mówiłą nam o pierwszej wartości
+    // pary, a wartość pos y o drugiej wartości
 
-
+    double threshold = ui->doubleSpinBoxBasicThreshold->value();
+    QString badPairs;
+    for(int posX = 0; posX < m_ErrorMatrix.size() - 1; posX++){             /// - 1 bo wywalam na tymaczas ostatnią zbugowaną literę
+        for(int posY = 0; posY < m_ErrorMatrix.size() - 1; posY++){         /// - 1 bo wywalam na tymaczas ostatnią zbugowaną literę
+            if(m_ErrorMatrix[posX][posY] > threshold && posY != posX){
+                badPairs += QString(" %1-%2 ").arg( m_Classes[posX] ).arg( m_Classes[posY] );
+            }
+        }
+    }
+    ui->lineEditDistinction->setText(badPairs);
 }
 
 
