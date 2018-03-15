@@ -14,16 +14,17 @@ TEMPLATE = app
 CONFIG += console c++11
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
     neuron.cpp \
-    neuralnetwork.cpp \
-    teacher.cpp
+    teacher.cpp \
+    mainWindow.cpp \
+    neuralNetwork.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
     neuron.h \
-    header.h \
-    neuralnetwork.h \
     teacher.h \
-    headermain.h
+    headerNeuron.h \
+    mainWindow.h \
+    neuralNetwork.h \
+    headerMain.h
 
 FORMS    += mainwindow.ui

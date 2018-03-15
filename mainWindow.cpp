@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "mainWindow.h"
 #include "ui_mainwindow.h"
 
 
@@ -207,13 +207,14 @@ void MainWindow::on_pushButtonLoadDataset_clicked(){
         while (!in.atEnd()){
             QString       stringClas = in.readLine();
             QStringList   stringVals = in.readLine().split(SEP);
+            QString       dir        = in.readLine();
 
             QVector<double> Vals;
             for(QString v : stringVals){
                 Vals.push_back(v.toDouble());
             }
 
-            LearnSig newSig = {stringClas, Vals};
+            LearnSig newSig = {stringClas, Vals, dir};
             m_LearnVect.push_back(newSig);
         }
         inputFile.close();
@@ -313,12 +314,11 @@ void MainWindow::on_pushButtonPauseLearn_clicked(){
 
 
 
-void MainWindow::createLogAndErrMatrix(){
+void MainWindow::createLogAndErrMatrix(QTextStream & ErrStream){
     ErrorLine   errorLine;
 
+    /// Mamy tutaj wyliczone wartości błędu dla wszystkich klas sygnałów i wszystkich sieci
     const AllNetworksRespos &resp = m_Teacher->getRespos();
-    QFile log("LearningResult.log");
-    log.open( QIODevice::WriteOnly);
 
     int longestName = 0;
     for(QString name : m_Classes)
@@ -326,21 +326,22 @@ void MainWindow::createLogAndErrMatrix(){
             longestName = name.size();
     if(longestName < 5) longestName = 5;
 
-    QTextStream display(&log);
     QString SEP = QString(longestName, ' ');
 
-    display << SEP << "  ";
+    ErrStream << SEP << "  ";
     for(QString name : m_Classes)
-        display << name  << SEP << "    ";
-    display << endl;
+        ErrStream << name  << SEP << "    ";
+    ErrStream << endl;
 
-    if(resp.size() == 1){   // for only one network results
+    if(resp.size() == 1){
         const OneNetworkRespos &netResp = resp.first();
+
         for(int pos = 0; pos < netResp.size(); pos++){
-            display << m_Classes[pos] << SEP;
+            ErrStream << m_Classes[pos] << SEP;
 
             const OneClassRespos &oneClass = netResp[pos];
             errorLine.clear();
+
             for(double val : oneClass){
                 errorLine.push_back(val);
                 QString number;
@@ -353,16 +354,16 @@ void MainWindow::createLogAndErrMatrix(){
                         number += "0";
                 }
                 else number.resize(5);
-                display << number << SEP;
+                ErrStream << number << SEP;
             }
             m_ErrorMatrix.push_back(errorLine);
-            display << endl;
+            ErrStream << endl;
         }
     }
 
     else{   // number of networks > 1
         for(int classNmb = 0; classNmb < m_Classes.size(); classNmb++){
-            display << m_Classes[classNmb] << SEP;
+            ErrStream << m_Classes[classNmb] << SEP;
             errorLine.clear();
             for(int networkNnb = 0; networkNnb < resp.size(); networkNnb++){
 
@@ -379,45 +380,18 @@ void MainWindow::createLogAndErrMatrix(){
                         number += "0";
                 }
                 else number.resize(5);
-                display << number << SEP;
+                ErrStream << number << SEP;
             }
             m_ErrorMatrix.push_back(errorLine);
-            display << endl;
+            ErrStream << endl;
         }
     }
-    log.close();
 }
 
 
 /// UWAGA FUNKCJA DO POPRAWIENIA PO USUNIĘCIU BUGA W BIASIE
-void MainWindow::on_pushButtonTestNetwork_clicked(){
-    resetAllProgAndStatus();
-    createSpecifViaForm();
-    for(LinearNetwork * net : m_Networks){
-        net->changeNetSpecification(m_GeneralSpecifi);
-    }
-
-    m_Teacher->setThresholds(
-                ui->doubleSpinBoxBasicThreshold->value(),
-                ui->doubleSpinBoxRelativeThreshold->value());
-
-    m_Teacher->testThoseNetworks(m_Networks, m_LearnVect, m_LearnClasses);
-
-    // Każdy sygnał powinien mieć info z jakiego pliku pochodzi. Ewentualnie niech będzie coś w stylu pliku dodatkowego generowanego przez
-    // generator sygnałów
-
-    // Weź każdy sygnał wejściowy, sprawdź odpowiedź na niego. Jeśli słabsza niż PRÓG_PODSTAWOWY, umieść informacje o adresie pliku, w pliku logów.
-
-    // Jednocześnie zliczaj średnią odpowiedź dla danego sygnału, wraz ze wszystkimi innymi odpowiedziami sieci, tj.
-        // W przypadku jednej sieci uczącej się wielu klas sygnałów, sprawdź dla jakich liter odpowiedź sieci jest większa niż PRÓG_REL
-        // W przypadku sieci uczącej się jedynie jednej klasy sygnału, sprawdź na jakie inne sygnały jej odpowiedź jest relatywnie wysoka
-
-    createLogAndErrMatrix();
-
-    // jeśli wykryjesz że wartość danego pola jest większa niż próg, a jednocześnie  posX != posY to
-    // wykryj klasę dla której nie nastąpiło rozróżnienie, tak że wartość posX będzie w mapie mówiłą nam o pierwszej wartości
-    // pary, a wartość pos y o drugiej wartości
-
+void MainWindow::createErrMatrixAndErrPairs()
+{
     double threshold = ui->doubleSpinBoxBasicThreshold->value();
     QString badPairs;
     for(int posX = 0; posX < m_ErrorMatrix.size() - 1; posX++){             /// - 1 bo wywalam na tymaczas ostatnią zbugowaną literę
@@ -428,6 +402,44 @@ void MainWindow::on_pushButtonTestNetwork_clicked(){
         }
     }
     ui->lineEditDistinction->setText(badPairs);
+}
+
+void MainWindow::on_pushButtonTestNetwork_clicked(){
+    resetAllProgAndStatus();
+    createSpecifViaForm();
+    for(LinearNetwork * net : m_Networks){
+        net->changeNetSpecification(m_GeneralSpecifi);
+    }
+
+    m_Teacher->setThresholds(
+                ui->doubleSpinBoxBasicThreshold->value());
+
+    QString errorBoard,
+            dirsBoard;
+
+    QTextStream ErrStream(&errorBoard),
+                DirStream(&dirsBoard);
+
+    m_Teacher->testThoseNetworks(m_Networks, m_LearnVect, m_LearnClasses, DirStream);
+
+    createLogAndErrMatrix(ErrStream);
+    createErrMatrixAndErrPairs();
+
+    QFile log("LearningResult.log");
+    log.open( QIODevice::WriteOnly);
+
+    QTextStream outS(&log);
+    outS << errorBoard
+         << "[::]" << endl
+         << dirsBoard;
+
+    log.close();
+
+
+
+    QMessageBox::information(this, "Powodzenie", "Proces generowania macierzy błędów zakończony powodzeniem. "
+                                                 "Sprawdź plik \"Learning.log\" aby uzyskać więcej informacji");
+    resetAllProgAndStatus();
 }
 
 

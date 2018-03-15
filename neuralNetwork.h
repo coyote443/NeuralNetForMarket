@@ -1,7 +1,7 @@
 #ifndef NEURALNETWORK_H
 #define NEURALNETWORK_H
 
-#include "header.h"
+#include "headerNeuron.h"
 #include "neuron.h"
 
 class Teacher;

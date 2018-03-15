@@ -1,9 +1,9 @@
-#include "header.h"
+#include "headerNeuron.h"
 
-#include "mainwindow.h"
+#include "mainWindow.h"
 #include <QApplication>
 
-#include "neuralnetwork.h"
+#include "neuralNetwork.h"
 
 void Teacher(LinearNetwork &toTeach){
     QVector<Signals> sig = {{0.0, 0.0},{1.0, 0.0},{0.0, 1.0},{1.0, 1.0}};

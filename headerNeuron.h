@@ -23,7 +23,12 @@ typedef QVector<Response>       Responses;
 enum Weight{RANDOM = 666};
 enum Gate {OPEN = 0, CLOSED = 1};
 
-typedef QPair<QString, QVector<double>> LearnSig;
+struct LearnSig{
+    QString Class;
+    Signals Signal;
+    QString Dir;
+};
+
 typedef QVector<LearnSig>               LearnVect;
 typedef QPair<QVector<int>, QVector<double>> NeuronConn;
 typedef QVector<NeuronConn> AllNetConn;

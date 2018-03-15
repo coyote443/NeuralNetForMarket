@@ -188,7 +188,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -472,7 +472,7 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>291</width>
+          <width>111</width>
           <height>61</height>
          </rect>
         </property>
@@ -486,35 +486,12 @@
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>Próg Relatywny</string>
-             </property>
-            </widget>
-           </item>
           </layout>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayoutSpinTests">
            <item>
             <widget class="QDoubleSpinBox" name="doubleSpinBoxBasicThreshold">
-             <property name="whatsThis">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Jest to wartość powyżej której uznajemy że reakcja sieci na daną klasę sygnału jest w wystarczającym stopniu satysfakcjonująca.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="maximum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.250000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDoubleSpinBox" name="doubleSpinBoxRelativeThreshold">
              <property name="whatsThis">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Jeśli dla sieci nauczonej reakcji na klasę sygnału A, nastąpi równocześnie pobudliwość na sygnał klasy B, i zostanie przekroczony ten próg, to informacja o plikach sygnałów wejściowych dla których wystąpiło przekroczenie zostanie umieszczona w pliku .log&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
@@ -525,7 +502,7 @@
               <double>0.010000000000000</double>
              </property>
              <property name="value">
-              <double>0.450000000000000</double>
+              <double>0.500000000000000</double>
              </property>
             </widget>
            </item>
@@ -699,6 +676,9 @@
      </widget>
     </widget>
     <widget class="QGroupBox" name="groupBoxNonDiffClasesView">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>410</x>
@@ -707,12 +687,15 @@
        <height>81</height>
       </rect>
      </property>
+     <property name="acceptDrops">
+      <bool>true</bool>
+     </property>
      <property name="title">
       <string>Nieróżnicowalne Klasy Sygnału</string>
      </property>
      <widget class="QLineEdit" name="lineEditDistinction">
       <property name="enabled">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="geometry">
        <rect>
@@ -984,11 +967,6 @@
      </widget>
     </widget>
    </widget>
-   <zorder>groupBoxWayOfNetConstruct</zorder>
-   <zorder>groupBoxAllNetsControls</zorder>
-   <zorder>groupBoxTraining</zorder>
-   <zorder>groupBoxLearn</zorder>
-   <zorder>groupBoxNonDiffClasesView</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

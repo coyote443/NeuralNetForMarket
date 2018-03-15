@@ -1,4 +1,4 @@
-#include "neuralnetwork.h"
+#include "neuralNetwork.h"
 
 NeuralNetwork::NeuralNetwork(const Topology & topology, const Specification & specify) : m_Topology(topology),
     m_Specifi(specify){

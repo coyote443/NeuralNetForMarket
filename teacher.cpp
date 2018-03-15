@@ -16,9 +16,8 @@ void Teacher::setSpecification(double err, double mut, double surv, int popSize)
     POPULATION_SIZE = popSize;
 }
 
-void Teacher::setThresholds(double basic, double relative){
-    THRESHOLD_BASIC = basic,
-    THRESHOLD_RELAT = relative;
+void Teacher::setThresholds(double basic){
+    THRESHOLD_BASIC = basic;
 }
 
 void Teacher::setTopolAndGeneralSpecif(const Topology &topol, const Specification &specif){
@@ -66,9 +65,9 @@ void Teacher::teachThoseNetworksGen(AllNets &nets, const LearnVect &sig, SigClas
     }
 }
 
-void Teacher::testThoseNetworks(AllNets &nets, const LearnVect &sig, SigClasses sigClasses){
+void Teacher::testThoseNetworks(AllNets &nets, const LearnVect &sig, SigClasses sigClasses, QTextStream &dirStream){
     if(nets.size() == 1){
-        testOneNetwork(*nets.first(), 1, sig, sigClasses);
+        testOneNetwork(*nets.first(), 0, 1, sig, sigClasses, dirStream);
         m_AllResposAllNets.push_back(m_AllResposOneNet);
         m_AllResposOneNet.clear();
         emit netTrained();
@@ -76,7 +75,7 @@ void Teacher::testThoseNetworks(AllNets &nets, const LearnVect &sig, SigClasses 
     else
         for(int pos = 0; pos < nets.size(); pos++){
             LinearNetwork * linearNetwork = nets[pos];
-            testOneNetwork(*linearNetwork, nets.size(), sig, sigClasses);
+            testOneNetwork(*linearNetwork, pos, nets.size(), sig, sigClasses, dirStream);
             m_AllResposAllNets.push_back(m_AllResposOneNet);
             m_AllResposOneNet.clear();
             emit netTrained();
@@ -103,7 +102,7 @@ void Teacher::teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, con
         for(LearnSig lernSig : learnVect){
             if(m_Stop == true) break;
             /// Make target vals Vector
-            QString takenClass = lernSig.first;                       /// Take signal class
+            QString takenClass = lernSig.Class;                       /// Take signal class
 
             for(double &val : targetVals)
                 val = 0;
@@ -119,7 +118,7 @@ void Teacher::teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, con
             }
 
             /// FeedForward
-            const Signals &givenSignal = lernSig.second;
+            const Signals &givenSignal = lernSig.Signal;
             nets.feedForward(givenSignal);
 
             /// BackPropagation
@@ -266,10 +265,8 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
     receivedNet = *population.front().network;
 }
 
-//     Assumption - teaching signal was sorted
-// niezróżnicowane pliki mają iść do logu !!!
-
-void Teacher::testOneNetwork(LinearNetwork &nets, int netSize, const LearnVect &sig, SigClasses sigClasses){
+///     Assumption - teaching signal was sorted
+void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig, SigClasses sigClasses, QTextStream &dirStream){
 
     int howManyOuts = (netSize > 1 ? 1 : sigClasses.size());
 
@@ -278,31 +275,54 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netSize, const LearnVect &
     for(double &val : OneRespos) val = 0;
 
     LearnVect testVect          = sig;
-    QString oldLearnSignClass   = testVect.front().first;
+    QString oldLearnSignClass   = testVect.front().Class;
 
     int progressCounter = 0,
         sigSize         = sig.size();
 
     int howManySignals = 0;
     for(LearnSig lernSig : testVect){
-        QString takenClass = lernSig.first;                       /// Take signal class
+        QString takenClass = lernSig.Class;                       /// Take signal class
 
-        // Wykryj jaki typ klasy leci
         if(oldLearnSignClass != takenClass){
-            for(double &record: OneRespos) record /= howManySignals;
+
+            for(double &record: OneRespos)
+                record /= howManySignals;
+
             m_AllResposOneNet.push_back(OneRespos);
             qDebug() << QString("Dla sygnału %1 wrzucam litere").arg(takenClass);
             howManySignals = 0;
-            for(double &val : OneRespos) val = 0;
+
+            for(double &val : OneRespos)
+                val = 0;
+
             oldLearnSignClass = takenClass;
         }
 
         // FeedForward
-        const Signals &givenSignal = lernSig.second;
+        const Signals &givenSignal = lernSig.Signal;
         nets.feedForward(givenSignal);
 
         // Zbieramy odpowiedzi sieci
         Signals outs = nets.getResults();
+//        for(double ccc : outs) qDebug() << ccc;
+//        qDebug() << "DALEJ";
+
+        // Wrzucamy adres niezróżnicowanego sygnału do strumieniaDirów
+        int ClassNum = sigClasses[takenClass];
+        if(netSize == 1){
+            for(int pos = 0; pos < outs.size(); pos++){
+                double output = outs[pos];
+                if(output > THRESHOLD_BASIC && ClassNum != pos)
+                    dirStream << output << "[::]" << lernSig.Dir << endl;
+            }
+        }
+        else{
+            double val = outs.front();
+            if(val > THRESHOLD_BASIC && ClassNum != netNr)
+                dirStream << val << "[::]" << lernSig.Dir << endl;
+        }
+
 
         for(int pos = 0; pos < outs.size(); pos++){
             OneRespos[pos] += outs[pos];
@@ -332,7 +352,7 @@ void Teacher::calculateAvarageError(Population &population, int netSize, const L
 
         for(LearnSig learnSig : AllSignals){
             /// Make target vals Vector
-            QString takenClass = learnSig.first;                       /// Take signal class
+            QString takenClass = learnSig.Class;                       /// Take signal class
 
             for(double &val : targetVals)
                 val = 0;
@@ -348,7 +368,7 @@ void Teacher::calculateAvarageError(Population &population, int netSize, const L
             }
 
             /// FeedForward
-            const Signals &givenSignal = learnSig.second;
+            const Signals &givenSignal = learnSig.Signal;
             takenNetwork->feedForward(givenSignal);
 
             /// Error sum, and divider optimization

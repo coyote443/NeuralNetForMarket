@@ -1,7 +1,7 @@
 #ifndef NEURON_H
 #define NEURON_H
 
-#include "header.h"
+#include "headerNeuron.h"
 
 //// Neuron ma zapisany nr neuronu z którym się łączy i przypisaną doń wagę. Określone jest to strukturą Connection;
 ///

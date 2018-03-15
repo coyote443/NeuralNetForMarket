@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "headermain.h"
+#include "headerMain.h"
 #include "teacher.h"
 
 namespace Ui {
@@ -67,7 +67,8 @@ private:
     void setNetSpecify(QStringList &NetChar);
     void setNetTopologyForm(QStringList &topology);
     void deleteAndClearNetworks();
-    void createLogAndErrMatrix();
+    void createLogAndErrMatrix(QTextStream &ErrStream);
+    void createErrMatrixAndErrPairs();
 };
 
 #endif // MAINWINDOW_H
