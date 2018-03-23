@@ -2,7 +2,6 @@
 
 NeuralNetwork::NeuralNetwork(const Topology & topology, const Specification & specify) : m_Topology(topology),
     m_Specifi(specify){
-        qDebug() << "tworze siec";
         BETA     =  m_Specifi[0],      //      Wsp. krzywej aktywacji || brak
         ETA      =  m_Specifi[1],      //      Wsp. uczenia
         ALPHA    =  m_Specifi[2],      //      Wsp. momentum
@@ -120,14 +119,6 @@ LinearNetwork & LinearNetwork::operator=(const LinearNetwork & linNet){
 }
 
 void LinearNetwork::feedForward(const Signals &inSigs){
-    /// EACH NEURON INDEX   >= 1
-    /// BIAS INDEX          == 0
-    /// EACH SIGNAL INDEX   <= -1
-
-    /*  Sygnał do neuronów inputu musi mieć spis elementów, które są źródłem tego sygnału (np neurony innej sieci,
-        rekurencyjne połączenia z wyjścia, bądź po prostu jakis inny sygnał. Bazowo, Sygnał jest pozbawiony indexów,
-        więc się mu je sztucznie dodaje. */
-
     Responses prevLayerRespo;
     int sigIndex = 0;
     for(double sig : inSigs){
@@ -140,7 +131,6 @@ void LinearNetwork::feedForward(const Signals &inSigs){
             for(Response prevNeuronOut : prevLayerRespo){
                 takenNeuron->takeThisSignal(prevNeuronOut);
             }
-            // tutaj dajemy push
             takenNeuron->pushSignal();
         }
         prevLayerRespo = takeOutput(takenLayer);

@@ -21,10 +21,11 @@ public:
     void stopStartMe(){m_Stop = !m_Stop;}
 
     void setSpecification(double err, double mut, double surv, int popSize);
-    void setThresholds(double basic);
+    void setThresholds(double relative);
     void setTopolAndGeneralSpecif(const Topology &topol, const Specification &generalSpecif);
     void linkProgBarrs(QProgressBar *progBar, QProgressBar *epochBarr);
     const AllNetworksRespos &getRespos(){return m_AllResposAllNets;}
+    void resetRespos(){m_AllResposAllNets.clear(), m_AllResposOneNet.clear();}
 
     void teachThoseNetworksFF(AllNets &nets, const LearnVect &sig, SigClasses sigClasses);
     void teachThoseNetworksGen(AllNets &nets, const LearnVect &sig, SigClasses sigClasses);
@@ -51,7 +52,7 @@ private:
             SURVIVE_RATE    = 0.75;
     int     POPULATION_SIZE = 2;
 
-    double  THRESHOLD_BASIC = 0.50;
+    double  THRESHOLD_RELATIVE = 0.50;
 
     QProgressBar        * m_ProgBar  = 0,
                         * m_EpochBar = 0;

@@ -137,6 +137,9 @@ void MainWindow::on_actionWczytaj_Sie_triggered(){
                              ui->radioButtonNetworkForEachClass->setChecked(false);
     m_Networks.size() == 1 ? m_TeachingSplitType = OneNetwork :
                              m_TeachingSplitType = ManyNetworks;
+
+    ui->groupBoxLearningMethod->setEnabled(true);
+    ui->groupBoxTraining->setEnabled(true);
 }
 
 
@@ -312,9 +315,8 @@ void MainWindow::on_pushButtonPauseLearn_clicked(){
 }
 
 
-
-
 void MainWindow::createLogAndErrMatrix(QTextStream & ErrStream){
+    m_ErrorMatrix.clear();
     ErrorLine   errorLine;
 
     /// Mamy tutaj wyliczone wartości błędu dla wszystkich klas sygnałów i wszystkich sieci
@@ -388,19 +390,27 @@ void MainWindow::createLogAndErrMatrix(QTextStream & ErrStream){
     }
 }
 
-
-/// UWAGA FUNKCJA DO POPRAWIENIA PO USUNIĘCIU BUGA W BIASIE
 void MainWindow::createErrMatrixAndErrPairs()
 {
-    double threshold = ui->doubleSpinBoxBasicThreshold->value();
+    double basicThreshold       = ui->doubleSpinBoxBasicThreshold->value(),
+           relativeThreshold    = ui->doubleSpinBoxRelativeThreshold->value();
+
     QString badPairs;
-    for(int posX = 0; posX < m_ErrorMatrix.size() - 1; posX++){             /// - 1 bo wywalam na tymaczas ostatnią zbugowaną literę
-        for(int posY = 0; posY < m_ErrorMatrix.size() - 1; posY++){         /// - 1 bo wywalam na tymaczas ostatnią zbugowaną literę
-            if(m_ErrorMatrix[posX][posY] > threshold && posY != posX){
-                badPairs += QString(" %1-%2 ").arg( m_Classes[posX] ).arg( m_Classes[posY] );
+    for(int posX = 0; posX < m_ErrorMatrix.size(); posX++){
+        for(int posY = 0; posY < m_ErrorMatrix.size(); posY++){
+            bool condOne =  m_ErrorMatrix[posX][posY] > basicThreshold,
+                 condTwo =  posY != posX,
+                 condThr =  posY == posX,
+                 contFor =  m_ErrorMatrix[posX][posY] < relativeThreshold;
+            if(condOne && condTwo){
+                badPairs += QString(" %1-%2^ ").arg( m_Classes[posX] ).arg( m_Classes[posY] );
+            }
+            else if(condThr && contFor){
+                badPairs += QString(" %1! ").arg( m_Classes[posX] );
             }
         }
     }
+    if(badPairs.isEmpty()) badPairs = "BRAK";
     ui->lineEditDistinction->setText(badPairs);
 }
 
@@ -411,8 +421,12 @@ void MainWindow::on_pushButtonTestNetwork_clicked(){
         net->changeNetSpecification(m_GeneralSpecifi);
     }
 
-    m_Teacher->setThresholds(
-                ui->doubleSpinBoxBasicThreshold->value());
+    m_Teacher->resetRespos();
+    m_Teacher->linkProgBarrs(
+        ui->progressBarError,
+        ui->progressBarEpoch);
+
+    m_Teacher->setThresholds(ui->doubleSpinBoxRelativeThreshold->value());
 
     QString errorBoard,
             dirsBoard;

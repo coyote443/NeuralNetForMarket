@@ -64,8 +64,11 @@ void LinInputNeuron::createConnection(int sourceIndex){
 }
 
 void LinInputNeuron::pushSignal(){
-    m_Output = m_AgregatedSignal;
+
+    m_Output = tranFun(m_AgregatedSignal);
     m_AgregatedSignal = 0;
+//    m_Output = m_AgregatedSignal;
+//    m_AgregatedSignal = 0;
 }
 
 
@@ -99,10 +102,14 @@ void LinearNeuron::updateWeights(Layer & prevLay){
 }
 
 
-void LinBiasNeuron::takeThisSignal(Response){
-    m_AgregatedSignal = 1;
-    pushSignal();
-}
+//void LinBiasNeuron::takeThisSignal(Response){
+//    m_Output = tranFun(m_AgregatedSignal);
+//    m_AgregatedSignal = 0;
+//
+//
+//    m_AgregatedSignal = 1;
+//    pushSignal();
+//}
 
 
 

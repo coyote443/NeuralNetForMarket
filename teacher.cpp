@@ -16,8 +16,8 @@ void Teacher::setSpecification(double err, double mut, double surv, int popSize)
     POPULATION_SIZE = popSize;
 }
 
-void Teacher::setThresholds(double basic){
-    THRESHOLD_BASIC = basic;
+void Teacher::setThresholds(double relative){
+    THRESHOLD_RELATIVE = relative;
 }
 
 void Teacher::setTopolAndGeneralSpecif(const Topology &topol, const Specification &specif){
@@ -105,7 +105,7 @@ void Teacher::teachOneNetworkFF(LinearNetwork &nets, int netNr, int netSize, con
             QString takenClass = lernSig.Class;                       /// Take signal class
 
             for(double &val : targetVals)
-                val = 0;
+                val = 0.0;
 
             switch (netSize) {
             case 1:
@@ -142,9 +142,9 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
     /// Net nr. - dla której z kolei sieci przeprowadzamy naukę. netSize - Ile łacznie sieci mamy do nauki. netSize wyznacza sposób
     /// konstrukcji sygnału testowego dla sieci
 
-    /// Wygeneruj losową populację sieci dla zadanego problemu.
+    /// Wygeneruj losową populację sieci dla zadanego problemu. Mnożnik wynosi 10 aby otrzymać na początku coś na kształt wyboru turniejowego
     Population population;
-    for(int indivd = 0; indivd < POPULATION_SIZE - 1; indivd++){
+    for(int indivd = 0; indivd < POPULATION_SIZE * 10 - 1; indivd++){
         LinearNetwork * tmp = new LinearNetwork(*m_Topol, *m_Specif);
         population.push_back({0, 0, tmp});
     }
@@ -153,13 +153,21 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
     population.push_back({0, 0, &receivedNet});
 
     /// Skonstruuj wektor prawidłowych odpowiedzi sieci. Licz usredniony fitness(Error) dla każdej sieci.
-    qDebug() << "Prosze chwile poczekac";
     calculateAvarageError(population, netSize, AllSignals, sigClasses, netNr);
+    qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.errorRate < b.errorRate;});
 
+    qDebug() <<"Przed Usmierceniem";
+    for(NetAndCharacter simple : population)
+        qDebug() << simple.errorRate;
+    qDebug() <<"END " << endl << endl;
 
-    qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.errorRate < b.errorRate;}); // to del
+    int size = population.size();
+    for(int pos = POPULATION_SIZE; pos < size; pos++){
+        delete population.back().network;
+        population.pop_back();
+    }
 
-    qDebug() <<"Posortowany wedle errRate ";
+    qDebug() <<"Po Usmierceniu";
     for(NetAndCharacter simple : population)
         qDebug() << simple.errorRate;
     qDebug() <<"END " << endl << endl;
@@ -168,7 +176,6 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
 
     /// Zacznij ewoulcję
     do{
-        qDebug() << "Pop size " << population.size();
         qSort(population.begin(), population.end(), [](NetAndCharacter a,  NetAndCharacter b)->bool{return a.errorRate < b.errorRate;});
 
         qDebug() <<"Przed Usmierceniem";
@@ -176,25 +183,19 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
             qDebug() << simple.errorRate;
         qDebug() <<"END " << endl << endl;
 
-        // usmierć wszystkich rodziców, i zrób tyle dzieci aby to sensownie działało
-        /// Uśmiercam pewien % najgorzej przystosowanych
-        killGivenPercOfPopulation(population);
-
-        qDebug() <<"Po usmierceniu";
+        double vla = 0;
         for(NetAndCharacter simple : population)
-            qDebug() << simple.errorRate;
-        qDebug() <<"END " << endl << endl;
+            vla += simple.errorRate;
+        qDebug() << vla;
 
         /// Obliczamy szanse na rozmnożenie się poszczególnych osobników
         makeBreedRate(population);
 
-
-        /// Usuń duplikaty u rodziców
-
-        /// Stwórz kolejną generację o wielkości == ilości uśmierconych osobników;
+        /// Stwórz kolejną generację o wielkości == ilości wolnych miejsc po zmarłych rodzicach
         /// Nie możemy tworzyc duplikatów, bo proces ewolucji jest skupiony w pewnym momencie tylko na jednym genotypie;
         Population Offspring;
-        for(int x = population.size(); x < POPULATION_SIZE; x++){
+        int toBreed = population.size() - SURVIVE_RATE * population.size();
+        for(int x = 0; x < toBreed; x++){
             while(true){
                 Population oneIndiv = {makeChildren(population)};
                 NetAndCharacter & myChildren = oneIndiv.back();
@@ -223,8 +224,8 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
                         break;
                     }
                     else{
-                        qDebug() << "niechciane dziecko";
-                        qDebug() << myChildren.errorRate;
+//                        qDebug() << "niechciane dziecko";
+//                        qDebug() << myChildren.errorRate;
                         delete myChildren.network;
                     }
                 }
@@ -235,14 +236,17 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
             }
             makeChildren(population);
         }
-
         calculateAvarageError(Offspring, netSize, AllSignals, sigClasses, netNr);
         m_EpochBar->setValue(66);
 
-        qDebug() <<"Offspring";
-        for(NetAndCharacter simple : Offspring)
-            qDebug() << simple.errorRate;
-        qDebug() <<"END " << endl << endl;
+
+//        qDebug() <<"Offspring";
+//        for(NetAndCharacter simple : Offspring)
+//            qDebug() << simple.errorRate;
+//        qDebug() <<"END " << endl << endl;
+
+        /// Uśmiercam pewien % najgorzej przystosowanych rodziców
+        killGivenPercOfPopulation(population);
 
         /// Dzieci dołączają do populacji rodzicielskiej
         for(NetAndCharacter &child : Offspring)
@@ -269,7 +273,6 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
 void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig, SigClasses sigClasses, QTextStream &dirStream){
 
     int howManyOuts = (netSize > 1 ? 1 : sigClasses.size());
-
     OneClassRespos OneRespos(howManyOuts);
 
     for(double &val : OneRespos) val = 0;
@@ -285,17 +288,13 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const 
         QString takenClass = lernSig.Class;                       /// Take signal class
 
         if(oldLearnSignClass != takenClass){
-
-            for(double &record: OneRespos)
+            for(double &record: OneRespos)         // uśredniam wynik dla każdej klasy
                 record /= howManySignals;
-
-            m_AllResposOneNet.push_back(OneRespos);
-            qDebug() << QString("Dla sygnału %1 wrzucam litere").arg(takenClass);
+            m_AllResposOneNet.push_back(OneRespos); // po uśrednieniu dodaje do odpowiedzi
             howManySignals = 0;
 
             for(double &val : OneRespos)
                 val = 0;
-
             oldLearnSignClass = takenClass;
         }
 
@@ -305,21 +304,19 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const 
 
         // Zbieramy odpowiedzi sieci
         Signals outs = nets.getResults();
-//        for(double ccc : outs) qDebug() << ccc;
-//        qDebug() << "DALEJ";
 
         // Wrzucamy adres niezróżnicowanego sygnału do strumieniaDirów
         int ClassNum = sigClasses[takenClass];
         if(netSize == 1){
             for(int pos = 0; pos < outs.size(); pos++){
                 double output = outs[pos];
-                if(output > THRESHOLD_BASIC && ClassNum != pos)
+                if(output > THRESHOLD_RELATIVE && ClassNum != pos)
                     dirStream << output << "[::]" << lernSig.Dir << endl;
             }
         }
         else{
             double val = outs.front();
-            if(val > THRESHOLD_BASIC && ClassNum != netNr)
+            if(val > THRESHOLD_RELATIVE && ClassNum != netNr)
                 dirStream << val << "[::]" << lernSig.Dir << endl;
         }
 
@@ -336,6 +333,9 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const 
 
         QCoreApplication::processEvents();                       /// GUI don`t frezee due to using this instruction
     }
+    for(double &record: OneRespos)
+        record /= howManySignals;
+
     m_AllResposOneNet.push_back(OneRespos);
 }
 

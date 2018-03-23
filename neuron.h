@@ -3,9 +3,6 @@
 
 #include "headerNeuron.h"
 
-//// Neuron ma zapisany nr neuronu z którym się łączy i przypisaną doń wagę. Określone jest to strukturą Connection;
-///
-
 struct Connection{
             Connection() : m_NeuronIndex(0), m_Weight(0), m_DeltaWeight(0){}
             Connection(int ConNum, double WeiNum) : m_NeuronIndex(ConNum), m_Weight(WeiNum), m_DeltaWeight(0){}
@@ -72,7 +69,6 @@ protected:
 
 };
 
-
 class LinInputNeuron : public LinearNeuron{
 public:
     explicit LinInputNeuron(int neuronNum) : LinearNeuron(neuronNum){}
@@ -83,15 +79,10 @@ public:
 
 class LinBiasNeuron : public LinInputNeuron{
 public:
-    LinBiasNeuron(int neuronNum) : LinInputNeuron(neuronNum){}
+    LinBiasNeuron(int neuronNum) : LinInputNeuron(neuronNum){m_Output = 1;}
     ~LinBiasNeuron(){ }
-    void takeThisSignal(Response);
+    //void takeThisSignal(Response);
 };
-
-
-////////////////////////////////////////////////////////
-
-
 
 
 class RBFNeuron : public Neuron{
