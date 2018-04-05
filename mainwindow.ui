@@ -188,7 +188,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -304,7 +304,7 @@
            <item>
             <widget class="QLabel" name="label_24">
              <property name="text">
-              <string>ALPHA</string>
+              <string>ALFA</string>
              </property>
             </widget>
            </item>
@@ -341,7 +341,7 @@
            <item>
             <widget class="QDoubleSpinBox" name="doubleSpinBoxETA">
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Momentum wpływa na aktualizowanie wag podczas uczenia. &lt;span style=&quot; font-weight:600;&quot;&gt;Momentum&lt;/span&gt; sprzyja zmianom wag w stałym kierunku. Określ wartość z zakresu od 0 do 1. Wyższe wartości alfa zwiększają momentum, ograniczając tendencję do zmiany kierunku pod wpływem lokalnych zmienności danych.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alfa, określana również jako Momentum wpływa na aktualizowanie wag podczas uczenia. &lt;span style=&quot; font-weight:600;&quot;&gt;Momentum&lt;/span&gt; sprzyja zmianom wag w stałym kierunku. Określ wartość z zakresu od 0 do 1. Wyższe wartości alfa zwiększają momentum, ograniczając tendencję do zmiany kierunku pod wpływem lokalnych zmienności danych.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="maximum">
               <double>10.000000000000000</double>
@@ -408,7 +408,7 @@
            <item>
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>Populacja</string>
+              <string>W. Populacji</string>
              </property>
             </widget>
            </item>
