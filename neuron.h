@@ -1,7 +1,7 @@
 #ifndef NEURON_H
 #define NEURON_H
 
-#include "headerNeuron.h"
+#include "headerneuron.h"
 
 struct Connection{
             Connection() : m_NeuronIndex(0), m_Weight(0), m_DeltaWeight(0){}

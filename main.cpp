@@ -1,15 +1,16 @@
-#include "headerNeuron.h"
+#include "headerneuron.h"
 
-#include "mainWindow.h"
+#include "mainwindow.h"
 #include <QApplication>
 
-#include "neuralNetwork.h"
+#include "neuralnetwork.h"
 
 void Teacher(LinearNetwork &toTeach){
     QVector<Signals> sig = {{0.0, 0.0},{1.0, 0.0},{0.0, 1.0},{1.0, 1.0}};
     QVector<Signals> res = {{0.0},{1.0},{1.0}, {0.0}};
 
     qsrand(QTime::currentTime().msec());
+
 
     int val;
     for(int x = 0; x < 500; x++){

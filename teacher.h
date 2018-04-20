@@ -1,7 +1,7 @@
 #ifndef TEACHER_H
 #define TEACHER_H
 
-#include "headerMain.h"
+#include "headermain.h"
 
 typedef const QMap<QString, int>    SigClasses;
 typedef QVector<LinearNetwork*>     AllNets;

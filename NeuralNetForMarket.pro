@@ -16,15 +16,15 @@ CONFIG += console c++11
 SOURCES += main.cpp\
     neuron.cpp \
     teacher.cpp \
-    mainWindow.cpp \
-    neuralNetwork.cpp
+    neuralnetwork.cpp \
+    mainwindow.cpp
 
 HEADERS  += \
     neuron.h \
     teacher.h \
-    headerNeuron.h \
-    mainWindow.h \
-    neuralNetwork.h \
-    headerMain.h
+    neuralnetwork.h \
+    mainwindow.h \
+    headerneuron.h \
+    headermain.h
 
 FORMS    += mainwindow.ui
