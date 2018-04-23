@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_Teacher = new Teacher(this);
     connect(m_Teacher, SIGNAL(nextEpoch()), this, SLOT(setEpochOnStatusBar()));
-    connect(m_Teacher, SIGNAL(netTrained()), this, SLOT(setLrndProgress()));
+    connect(m_Teacher, SIGNAL(netProcessed()), this, SLOT(setLrndProgress()));
 
     ui->groupBoxAllNetsControls->setDisabled(true);
     ui->groupBoxButtonsStartAndTest->setDisabled(true);

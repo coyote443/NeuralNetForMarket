@@ -38,7 +38,7 @@ void Teacher::teachThoseNetworksFF(AllNets &nets, const LearnVect &sig, SigClass
         teachOneNetworkFF(*nets.first(), 0, 1, sig, sigClasses);
 
         if(m_Stop == false)
-            emit netTrained();
+            emit netProcessed();
     }
     else{
         for(int pos = 0; pos < nets.size(); pos++){
@@ -46,7 +46,7 @@ void Teacher::teachThoseNetworksFF(AllNets &nets, const LearnVect &sig, SigClass
             teachOneNetworkFF(*linearNetwork, pos, nets.size(), sig, sigClasses);
 
             if(m_Stop == false)
-                emit netTrained();
+                emit netProcessed();
         }
     }
 }
@@ -54,32 +54,52 @@ void Teacher::teachThoseNetworksFF(AllNets &nets, const LearnVect &sig, SigClass
 void Teacher::teachThoseNetworksGen(AllNets &nets, const LearnVect &sig, SigClasses sigClasses){
     if(nets.size() == 1){
         teachOneNetworkGen(*nets.first(), 0, 1, sig, sigClasses);
-        emit netTrained();
+        emit netProcessed();
     }
     else{
         for(int pos = 0; pos < nets.size(); pos++){
             LinearNetwork * linearNetwork = nets[pos];
             teachOneNetworkGen(*linearNetwork, pos, nets.size(), sig, sigClasses);
-            emit netTrained();
+            emit netProcessed();
         }
     }
 }
 
 void Teacher::testThoseNetworks(AllNets &nets, const LearnVect &sig, SigClasses sigClasses, QTextStream &dirStream){
+    m_ExTestRes.clear();
+    for(int pos = 0; pos < sigClasses.size(); pos++)
+        m_ExTestRes.push_back(ExtendedTestRes());
+
     if(nets.size() == 1){
-        testOneNetwork(*nets.first(), 0, 1, sig, sigClasses, dirStream);
+        testOneNetwork(*nets.first(), 0, 1, sig, sigClasses, dirStream, nets);
         m_AllResposAllNets.push_back(m_AllResposOneNet);
         m_AllResposOneNet.clear();
-        emit netTrained();
+        emit netProcessed();
     }
     else
         for(int pos = 0; pos < nets.size(); pos++){
             LinearNetwork * linearNetwork = nets[pos];
-            testOneNetwork(*linearNetwork, pos, nets.size(), sig, sigClasses, dirStream);
+            testOneNetwork(*linearNetwork, pos, nets.size(), sig, sigClasses, dirStream, nets);
             m_AllResposAllNets.push_back(m_AllResposOneNet);
             m_AllResposOneNet.clear();
-            emit netTrained();
+            emit netProcessed();
         }
+
+    /// Ustal N
+    ///
+    qDebug() << "sigsize " << sig.size() << endl;
+    for(ExtendedTestRes & tknCls : m_ExTestRes)
+        tknCls.N = sig.size() - tknCls.P;
+
+    for(ExtendedTestRes & tknCls : m_ExTestRes)
+        tknCls.makeTests();
+
+
+    for(ExtendedTestRes & tknCls : m_ExTestRes){
+        tknCls.print();
+        qDebug() <<  endl << endl;
+    }
+
 }
 
 
@@ -270,9 +290,11 @@ void Teacher::teachOneNetworkGen(LinearNetwork &receivedNet, int netNr, int netS
 }
 
 ///     Assumption - teaching signal was sorted
-void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig, SigClasses sigClasses, QTextStream &dirStream){
+void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const LearnVect &sig,
+                             SigClasses sigClasses, QTextStream &dirStream, AllNets &all){
 
     int howManyOuts = (netSize > 1 ? 1 : sigClasses.size());
+
     OneClassRespos OneRespos(howManyOuts);
 
     for(double &val : OneRespos) val = 0;
@@ -284,6 +306,7 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const 
         sigSize         = sig.size();
 
     int howManySignals = 0;
+
     for(LearnSig lernSig : testVect){
         QString takenClass = lernSig.Class;                       /// Take signal class
 
@@ -305,6 +328,8 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const 
         // Zbieramy odpowiedzi sieci
         Signals outs = nets.getResults();
 
+        int ClassNum = sigClasses[takenClass];
+
         /// TESTY IMPLEMENTACJA
 
         /// TPR - [ JEŚLI WŁAŚCIWY OUTPUT PRZEKRACZA PRÓG, I JEDNOCZEŚNIE ŻADNE INNE WYJŚCIE NIE PRZEKRACZA PROGU
@@ -324,9 +349,64 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const 
 
         /// CAŁA RESZTA LICZONA JEST Z WYKORZYSTANIEM UZYSKANYCH TUTAJ WARTOŚCI
 
+        /// Zlicz P dla każdej klasy
+        m_ExTestRes[ClassNum].P++;
+
+
+
+        bool isOnly = true, isAbov = false;
+
+        /// Ustalamy TP
+        if(netSize == 1){       /// Ustal TP dla jednej sieci
+            for(int pos = 0; pos < outs.size(); pos++){
+                double output = outs[pos];
+                if(pos == ClassNum && output >= THRESHOLD_RELATIVE)
+                    isAbov = true;
+                else if(output >= THRESHOLD_RELATIVE)
+                    isOnly = false;
+            }
+            if(isOnly && isAbov)
+                m_ExTestRes[ClassNum].TP++;
+        }
+        else{                   /// Ustal TP dla wielu sieci
+            int nNr = 0;
+            for(LinearNetwork *n : all){
+                n->feedForward(givenSignal);
+                double output = n->getResults().back();
+                if(netNr == ClassNum && output >= THRESHOLD_RELATIVE)
+                    isAbov = true;
+                else if(output >= THRESHOLD_RELATIVE)
+                    isOnly = false;
+                nNr++;
+            }
+            if(isOnly && isAbov)
+                m_ExTestRes[ClassNum].TP++;
+        }
+
+        isOnly = true, isAbov = false;
+        /// Ustalamy TN
+        if(netSize == 1){       /// TN dla jednej sieci
+            /// Sprawdzamy reakcję outputów na przesłany sygnał. Zliczamy wszystkie te które nie przekroczyły swoją reakcją progu
+            int outNr = 0;
+            for(double val : outs){
+                if(val < THRESHOLD_RELATIVE && ClassNum != outNr){
+                    m_ExTestRes[outNr].TN++;
+                }
+                outNr++;
+            }
+        }
+        else{                   /// TN dla wielu sieci
+            /// Sprawdzamy reakcję danego outputu sieci na sygnał z nim niepowiązany. Jeśli reakcja nie przekracza
+            /// progu, to mamy przykład True Negative
+            double output = outs.back();
+            if(netNr != ClassNum && output < THRESHOLD_RELATIVE)
+                m_ExTestRes[ClassNum].TN++;
+        }
+
+
+
 
         // Wrzucamy adres niezróżnicowanego sygnału do strumieniaDirów
-        int ClassNum = sigClasses[takenClass];
         if(netSize == 1){
             for(int pos = 0; pos < outs.size(); pos++){
                 double output = outs[pos];
@@ -357,6 +437,8 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const 
         record /= howManySignals;
 
     m_AllResposOneNet.push_back(OneRespos);
+
+    qDebug() << "how many " << sig.size() << endl;
 }
 
 

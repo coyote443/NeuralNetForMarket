@@ -46,7 +46,8 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
-
+    double dd = (0.0 - (0.0 * 0.0))  / 1;
+    qDebug() << dd  << endl;
 //    double  beta     =  1.100,      //      Wsp. krzywej aktywacji || brak
 //            eta      =  0.200,      //      Wsp. uczenia
 //            alfa     =  0.600,      //      Wsp. momentum
