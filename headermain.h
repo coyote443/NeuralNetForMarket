@@ -8,6 +8,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QProgressBar>
+#include <QTime>
 #include "neuralnetwork.h"
 
 enum nType      {SIGMOID = 0, RBF = 1};

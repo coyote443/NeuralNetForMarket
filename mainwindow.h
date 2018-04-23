@@ -54,6 +54,7 @@ private:
     Teacher                *m_Teacher;
     QStringList             m_Classes;
     ErrorMatrix             m_ErrorMatrix;
+    QTime                   m_LearnTimer;
 
     int                     m_EpochCounter      = 0;
     int                     m_EpochProgress     = 0;

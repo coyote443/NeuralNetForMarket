@@ -267,6 +267,8 @@ void MainWindow::on_radioButtonGeneticAlg_clicked(){
 void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
     resetAllProgAndStatus();
     createSpecifViaForm();
+    m_LearnTimer.setHMS(0,0,0,0);
+    m_LearnTimer.start();
 
     ui->groupBoxAllNetsControls->setDisabled(true);
     ui->groupBoxLearn->setDisabled(true);
@@ -294,8 +296,10 @@ void MainWindow::on_pushButtonStartNetworkLearning_clicked(){
     else
         m_Teacher->teachThoseNetworksGen(m_Networks, m_LearnVect, m_LearnClasses);
 
-    if(m_StopStartSwitch == true)
+    if(m_StopStartSwitch == true){
+        ui->timeEditLearnTime->setTime(QTime::fromMSecsSinceStartOfDay(m_LearnTimer.restart()));
         ui->progressBarNetworkTrained->setValue(100);
+    }
 }
 
 
@@ -394,15 +398,15 @@ void MainWindow::createLogAndErrMatrix(QTextStream & ErrStream){
 void MainWindow::createErrMatrixAndErrPairs()
 {
     double basicThreshold       = ui->doubleSpinBoxBasicThreshold->value(),
-           relativeThreshold    = ui->doubleSpinBoxRelativeThreshold->value();
+           additThreshold       = ui->doubleSpinBoxAdditionalThreshold->value();
 
     QString badPairs;
     for(int posX = 0; posX < m_ErrorMatrix.size(); posX++){
         for(int posY = 0; posY < m_ErrorMatrix.size(); posY++){
-            bool condOne =  m_ErrorMatrix[posX][posY] > basicThreshold,
+            bool condOne =  m_ErrorMatrix[posX][posY] > additThreshold,
                  condTwo =  posY != posX,
                  condThr =  posY == posX,
-                 contFor =  m_ErrorMatrix[posX][posY] < relativeThreshold;
+                 contFor =  m_ErrorMatrix[posX][posY] < basicThreshold;
             if(condOne && condTwo){
                 badPairs += QString(" %1-%2^ ").arg( m_Classes[posX] ).arg( m_Classes[posY] );
             }

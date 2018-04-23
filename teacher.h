@@ -6,13 +6,6 @@
 typedef const QMap<QString, int>    SigClasses;
 typedef QVector<LinearNetwork*>     AllNets;
 
-/// ***************************************************************
-/// Dodaj destruktor który będzie usuwał sieci wygenerowane wcześniej,
-/// tzn, po odpaleniu drugi raz nauki, musi usuwać to co jest już
-/// utworzone.
-///
-/// ***************************************************************
-
 class Teacher : public QObject
 {
     Q_OBJECT

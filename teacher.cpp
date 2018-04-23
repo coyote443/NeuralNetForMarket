@@ -305,6 +305,26 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const 
         // Zbieramy odpowiedzi sieci
         Signals outs = nets.getResults();
 
+        /// TESTY IMPLEMENTACJA
+
+        /// TPR - [ JEŚLI WŁAŚCIWY OUTPUT PRZEKRACZA PRÓG, I JEDNOCZEŚNIE ŻADNE INNE WYJŚCIE NIE PRZEKRACZA PROGU
+        ///         TO ZLICZ. Zrób True positive per każda klasa ]
+        ///         ustalam tutaj   TP i P
+
+        /// TNR - [ Biorę output do Litery "A", następnie puszczam mu wszystkie możliwe sygnały Nie-A i sprawdzam jaka była odpowiedź.
+        ///          Zliczam jeśli odpowiedź nie przekroczyła progu. Następnie to co zliczyłem dzielę przez ogólną liczbę sygnałów.
+        ///          Robię tak dla każdej klasy]
+        ///          Ustalam tutaj  TN i N
+
+
+        /// FPR - [ Biorę output do litery "A", następnie puszczam mu wszystkie możliwe odpowiedzi.
+        ///          Zliczam wtedy kiedy odpowiedź przekroczyła próg. Następnie to co zliczyłem dzielę przez ogólną liczbę sygnałów.
+        ///          Robię tak dla każdej klasy]
+        ///          Ustalam tutaj FP
+
+        /// CAŁA RESZTA LICZONA JEST Z WYKORZYSTANIEM UZYSKANYCH TUTAJ WARTOŚCI
+
+
         // Wrzucamy adres niezróżnicowanego sygnału do strumieniaDirów
         int ClassNum = sigClasses[takenClass];
         if(netSize == 1){
