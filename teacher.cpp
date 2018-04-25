@@ -349,15 +349,18 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const 
 
         /// CAŁA RESZTA LICZONA JEST Z WYKORZYSTANIEM UZYSKANYCH TUTAJ WARTOŚCI
 
-        /// Zlicz P dla każdej klasy
-        m_ExTestRes[ClassNum].P++;
+
 
 
 
         bool isOnly = true, isAbov = false;
 
-        /// Ustalamy TP
-        if(netSize == 1){       /// Ustal TP dla jednej sieci
+        /// Ustalamy P i TP
+        if(netSize == 1){
+            /// Zlicz P dla każdej klasy
+            m_ExTestRes[ClassNum].P++;
+
+            /// Ustal TP dla jednej sieci
             for(int pos = 0; pos < outs.size(); pos++){
                 double output = outs[pos];
                 if(pos == ClassNum && output >= THRESHOLD_RELATIVE)
@@ -368,7 +371,11 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const 
             if(isOnly && isAbov)
                 m_ExTestRes[ClassNum].TP++;
         }
-        else{                   /// Ustal TP dla wielu sieci
+        else{
+            /// Zlicz P dla każdej klasy
+            if(netNr == ClassNum) m_ExTestRes[netNr].P++;
+
+            /// Ustal TP dla wielu sieci
             int nNr = 0;
             for(LinearNetwork *n : all){
                 n->feedForward(givenSignal);
@@ -398,13 +405,12 @@ void Teacher::testOneNetwork(LinearNetwork &nets, int netNr, int netSize, const 
         else{                   /// TN dla wielu sieci
             /// Sprawdzamy reakcję danego outputu sieci na sygnał z nim niepowiązany. Jeśli reakcja nie przekracza
             /// progu, to mamy przykład True Negative
-            double output = outs.back();
-            if(netNr != ClassNum && output < THRESHOLD_RELATIVE)
-                m_ExTestRes[ClassNum].TN++;
+            double output = outs.front();
+
+            if(output < THRESHOLD_RELATIVE && netNr != ClassNum){
+                m_ExTestRes[netNr].TN++;
+            }
         }
-
-
-
 
         // Wrzucamy adres niezróżnicowanego sygnału do strumieniaDirów
         if(netSize == 1){

@@ -8,10 +8,9 @@ typedef QVector<LinearNetwork*>     AllNets;
 
 class ExtendedTestRes{
 public:
-    double P  = 0, N  = 0, TN = 0, TP = 0,                         /// Bazowe które trzeba obliczyć najpierw
-        FP = 0, FN = 0;                                         /// Miary oparte na bazowych
-    double  TPR = 0.0, TNR = 0.0, FPR = 0.0, FDR = 0.0,
-            PPV = 0.0, NPV = 0.0, F1  = 0.0, MCC = 0.0;
+    double  P   = 0.0, N   = 0.0, TN  = 0.0, TP  = 0.0,                         /// Bazowe które trzeba obliczyć najpierw
+            FP  = 0.0, FN  = 0.0, TPR = 0.0, TNR = 0.0,                         /// Miary oparte na bazowych
+            FPR = 0.0, FDR = 0.0, PPV = 0.0, NPV = 0.0, F1  = 0.0, MCC = 0.0;
     void makeTests(){
         TPR = TP / P;
         FN  = (TP - (TPR * TP));
@@ -27,7 +26,6 @@ public:
         NPV = TN / (TN + FN);
         F1  = (2 * TP) / (2 * TP + FP + FN);
 
-        qDebug() << "SQRT " << sqrt( (TP + FP) * (TP + FN) * (TN + FP) * (TN + FN) ) << endl;
         MCC = (TP * TN - FP * FN) / sqrt( (TP + FP) * (TP + FN) * (TN + FP) * (TN + FN) );
     }
 
